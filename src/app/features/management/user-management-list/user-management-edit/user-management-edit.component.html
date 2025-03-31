@@ -1,0 +1,16 @@
+<nz-modal nzWidth="600" [(nzVisible)]="isVisiblePopUpEditManagement" nzCentered [nzContent]="modalContent"
+    [nzFooter]="modalFooter" (nzOnCancel)="handleCancel()">
+
+    <ng-template #modalContent>
+        <div>Edit</div>
+    </ng-template>
+
+    <ng-template #modalFooter>
+        <div class="flex justify-center">
+            <button nz-button nzType="primary"
+                class="!bg-primary w-[120px] border-none rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleOk()">{{'Button.confirm'| translate }}</button>
+        </div>
+    </ng-template>
+</nz-modal>
+

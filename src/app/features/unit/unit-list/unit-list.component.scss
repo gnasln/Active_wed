@@ -1,0 +1,16 @@
+.icon {
+  display: flex;
+  align-items: center;
+}
+mwlResizable {
+  box-sizing: border-box; // required for the enableGhostResize option to work
+}
+::ng-deep ul.ant-dropdown-menu {
+  &.ant-dropdown-menu-root {
+    &.ant-dropdown-menu-light {
+      &.ant-dropdown-menu-vertical {
+        width: 130px;
+      }
+    }
+  }
+}

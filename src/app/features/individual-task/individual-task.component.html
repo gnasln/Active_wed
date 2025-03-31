@@ -1,0 +1,80 @@
+<div class="m-2">
+    <div class=" flex gap-1 w-full" id="containerBlock">
+        <div class="w-[60%] min-h-[500px] flex bg-primaryBG p-3 relative" [ngStyle]="style" mwlResizable
+            [enableGhostResize]="true" (resizeEnd)="onResizeEnd($event)">
+            <div class="flex-1">
+                <div class="flex justify-end gap-5">
+
+                    <div class="flex gap-5 items-center">
+                        <div class="flex">
+                            <button nz-dropdown [nzDropdownMenu]="menu" nz-button nzType="default"
+                                [nzPlacement]="'bottomRight'">
+                                <span nz-icon nzType="filterIcon:antd" class="icon text-[20px] cursor-pointer"
+                                    nzTheme="outline"></span>
+                            </button>
+
+                            <nz-dropdown-menu #menu="nzDropdownMenu">
+                                <ul nz-menu nzSelectable>
+                                    <li nz-menu-item>Tất cả</li>
+                                    <li nz-menu-item>Cá nhân</li>
+
+                                </ul>
+                            </nz-dropdown-menu>
+                        </div>
+
+
+                        <span *ngIf="sort===0" (click)="changeSort(1)" nz-icon nzType="sortIcon:antd"
+                            class="icon text-[20px] cursor-pointer" nzTheme="outline"></span>
+                        <span *ngIf="sort===1" (click)="changeSort(2)" nz-icon nzType="descSortIcon:antd"
+                            class="icon text-[20px] cursor-pointer" nzTheme="outline"></span>
+                        <span *ngIf="sort===2" (click)="changeSort(0)" nz-icon nzType="ascSortIcon:antd"
+                            class="icon text-[20px] cursor-pointer" nzTheme="outline"></span>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="ml-5 flex items-center gap-4">
+                        <span nz-icon nzType="ghostIcon:antd" class="icon text-[24px] cursor-pointer"
+                            nzTheme="outline"></span>
+                        <span class="text-[24px] font-medium">Active+</span>
+                    </div>
+                    <div class="flex gap-5 flex-col"> <app-unit-item></app-unit-item><app-unit-item></app-unit-item>
+                    </div>
+
+                </div>
+            </div>
+            <div mwlResizeHandle [resizeEdges]="{ right: true }"
+                class=" w-[1px] h-[200px] border-2 cursor-col-resize absolute top-[50%] translate-y-[-50%] right-0">
+            </div>
+        </div>
+
+        <div class="w-[40%] min-h-[500px] bg-primaryBG p-3 " [ngStyle]="style2">
+            <div class="ml-8 flex items-center gap-4 mt-8">
+                <span nz-icon nzType="taskIcon:antd" class="icon text-[24px] cursor-pointer" nzTheme="outline"></span>
+                <span class="text-[24px] font-medium">Rad 1</span>
+            </div>
+            <div class="mt-6 flex flex-col gap-4">
+                <app-key-result-item></app-key-result-item>
+                <app-key-result-item></app-key-result-item>
+
+            </div>
+        </div>
+
+        <!-- <app-unit-item (edit)="handleEditUnit($event)" [data]="1"></app-unit-item>
+        <app-unit-item></app-unit-item>
+        <app-unit-item></app-unit-item>
+        <app-unit-item></app-unit-item>
+        <app-unit-item></app-unit-item>
+        <app-unit-item></app-unit-item>
+        <app-unit-item></app-unit-item>
+        <app-unit-item></app-unit-item>
+        <app-unit-item></app-unit-item>
+        <app-unit-item></app-unit-item>
+        <app-unit-item></app-unit-item>
+        <button (click)="handleOpenList()" class="text-primary bg-[#dcf4ee] w-fit rounded-md p-3 self-center"><i
+                class="fa-solid fa-plus"></i></button> -->
+    </div>
+    <!-- <button (click)="handleCount()">test</button> -->
+</div>
+<!-- <app-unit-popup-add-edit *ngIf="visibleList" [idUnit]="idUnit" (visibleList)="handleVisibleList($event)"
+    [isVisible]="visibleList"></app-unit-popup-add-edit> -->

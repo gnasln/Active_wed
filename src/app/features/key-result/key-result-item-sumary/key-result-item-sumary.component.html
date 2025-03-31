@@ -1,0 +1,26 @@
+<div class="w-[85%] mx-auto overflow-hidden">
+    <div class="grid grid-cols-[fit-content(20px)_1fr] grid-rows-3 item-center gap-2">
+        <span nz-icon nzType="keySquareIcon:antd" class="self-center col-span-1 icon w-fit text-[20px] cursor-pointer"
+            nzTheme="outline"></span>
+        <span class="col-span-1 text-[20px] font-medium w-fit self-center">{{keyResultName.title}}</span>
+        <div class="col-start-2 col-end-3">
+            <nz-progress [nzPercent]="30"></nz-progress>
+        </div>
+        <div></div>
+        <div class="col-start-2 col-end-3 flex justify-between">
+            <div class="flex">
+
+                <div *ngFor="let item of listMember let i = index">
+                    <img *ngIf="i<4" [src]="item.img" [alt]="item" class="size-5 border-white border-2 rounded-[50%]"
+                        #member1>
+                </div>
+                <div class="flex justify-center items-center size-5 text-[8px] border-white border-2 rounded-[50%]  bg-primary"
+                    #member1>
+                    <span class=" text-white">+{{memberCount}}</span>
+                </div>
+            </div>
+            <span class="text-red-500">{{keyResultName.createdDate | date:'dd/MM/yyyy'}}</span>
+        </div>
+
+    </div>
+</div>

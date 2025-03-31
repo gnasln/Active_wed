@@ -1,0 +1,154 @@
+<nz-layout class="min-h-full">
+  <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed" [class.hidden]="isCollapsed" [class.lg:block]="isCollapsed"
+    [nzWidth]="width" nzTheme="light" [nzTrigger]="null" [nzReverseArrow]="isReverseArrow"
+    class="!fixed px-4 left-0 z-10 !h-screen overflow-y-auto !overflow-x-hidden bg-primaryBG border-r-2 border-solid text-textColor shadow-[2px_0px_7px_0px_rgba(1,87,155,0.30)]">
+    <div class="relative">
+      <div [routerLink]="['/']" routerLinkActive="router-link-active"
+        class="cursor-pointer logo mb-2 mt-4 m-auto flex flex-col h-10 items-center justify-center rounded-md">
+        <div class="text-[20px] flex gap-3 items-center">
+          <i class="text-[26px] fa-regular fa-circle-user"></i>
+          <span>{{userName}}</span>
+        </div>
+      </div>
+      <div
+        class="absolute top-0 right-0 rounded-[50%] size-[25px] text-[12px] cursor-pointer border-[#1C274C] border bg-[#FFF] flex justify-center items-center">
+        <span *ngIf="language==='vi'" (click)="changeLanguage('en')" class="select-none">VN</span>
+        <span *ngIf="language==='en'" (click)="changeLanguage('vi')" class="select-none">EN</span>
+      </div>
+    </div>
+    <div
+      class="absolute z-50 bottom-0 left-0 right-0 flex justify-center p-3 gap-2 items-center bg-[#DAF4FF] logoutBTN cursor-pointer"
+      (click)="handleLogout()">
+      <span nz-icon nzType="logoutIcon:antd" class="icon" nzTheme="outline"></span>
+      <span class="select-none">Đăng xuất</span>
+    </div>
+    <div>
+      <ul nz-menu [nzMode]="'inline'" [nzInlineCollapsed]="isCollapsed" class="border-none">
+        <ul nz-submenu nzTitle="{{'Menu.setting'| translate }}" nzIcon="setting" class="menu-item">
+          <li nz-menu-item [routerLink]="['/', 'user-infor',userInfor.sub]" nzMatchRouter>
+            <span nz-icon nzType="userInforIcon:antd" class="icon" nzTheme="outline"></span>
+            <span>{{'Menu.userInfor'| translate }}</span>
+          </li>
+        </ul>
+        <li nz-menu-item [routerLink]="['/', 'task']" nzMatchRouter class="menu-item">
+          <span nz-icon nzType="tabTaskIcon:antd" class="icon" nzTheme="outline"></span>
+          <span>{{'Menu.task'| translate }}</span>
+        </li>
+        <li nz-menu-item [routerLink]="['/', 'user-management']" nzMatchRouter class="menu-item">
+          <span nz-icon nzType="manager:antd" class="icon" nzTheme="outline"></span>
+          <span>{{'Menu.userManagement'| translate }}</span>
+        </li>
+        <li nz-submenu nzTitle="{{'Menu.organization'| translate}}" nzIcon="organizationIcon:antd" class="menu-item"
+          nzOpen nzMenuClassName="test" (contextmenu)="contextMenuOrgnization($event, menuOrganization)">
+          <nz-dropdown-menu #menuOrganization="nzDropdownMenu">
+            <ul nz-menu>
+              <li nz-menu-item (click)="handelOpenPopUpChangeOrgnization()">{{'Button.edit'| translate}}</li>
+            </ul>
+            <ul nz-menu>
+              <li nz-menu-item (click)="handelOpenPopUpCreateOrgnization()">{{'Button.add'| translate}}</li>
+            </ul>
+          </nz-dropdown-menu>
+          <!-- Tenant -->
+          <ul [hidden]="isTenantHidden(tenant.id)" (contextmenu)="contextTenantMenu($event, tenant.id)" [(nzOpen)]="openSubMap[index]" (nzOpenChange)="openHandler(index, true)"
+          *ngFor="let tenant of tenants; let index = index" (click)="loadUnitbytenant(tenant.id, $event)" [id]='tenant.id' nz-submenu [nzTitle]="tenant.name" nzIcon="groupUserIcon:antd" class="menu-item">
+            <nz-dropdown-menu #menuTenant="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="handelOpenPopUpCreateOrgnization(tenant.id, $event)">Chỉnh sửa</li>
+              </ul>
+            </nz-dropdown-menu>
+            <!-- Unit -->
+            <ul (contextmenu)="contextUnitMenu($event, unit.id)" nz-submenu *ngFor="let unit of units; let index = index" [(nzOpen)]="openSubMap2[index]" (nzOpenChange)="openHandler2(index, true)" (click)="loadUnitChildren(unit.id, $event)" [nzTitle]="unit.name" nzIcon="ghostIcon:antd" class="menu-item">
+              <nz-dropdown-menu #menuUnit="nzDropdownMenu">
+                <ul nz-menu>
+                  <li nz-menu-item (click)="handleOpenEditUnit(unit.id, tenant.id, $event)">Chỉnh sửa</li>
+                </ul>
+              </nz-dropdown-menu>
+              <!-- SubUnit -->
+              <ul *ngFor="let chilUnit of childrenUnits">
+                <li nz-submenu [nzTitle]="chilUnit.name" nzIcon="ghostIcon:antd" class="menu-item" 
+                    [(nzOpen)]="openSubMap3[chilUnit.id]" 
+                    (nzOpenChange)="openHandler3(chilUnit.id, true)" 
+                    (click)="listObjectByUnit(chilUnit.id, $event)">
+                  <nz-dropdown-menu #menuUnitChil="nzDropdownMenu">
+                    <ul nz-menu>
+                      <li nz-menu-item (click)="handleOpenEditUnit(chilUnit.id, tenant.id, $event)">Chỉnh sửa</li>
+                    </ul>
+                  </nz-dropdown-menu>
+                  <!-- Objects của SubUnit -->
+                  <ul *ngIf="selectedSubUnitId === chilUnit.id && currentTenantId && selectedUnitId" class="max-h-[200px] overflow-y-auto">
+                    <li nz-menu-item *ngFor="let object of objectsByUnit[chilUnit.id]" class="!pl-[80px]">
+                      <span nz-icon nzType="circleIcon:antd" class="icon" nzTheme="outline"></span>
+                      <span>{{object.name}}</span>
+                    </li>
+                  </ul>
+                  <!-- Thêm mới Object cho SubUnit -->
+                  <div *ngIf="selectedSubUnitId === chilUnit.id" class="!translate-x-[38%] flex flex-col gap-3">
+                    <div class="hover:text-[#1890ff] w-fit">
+                      <span nz-icon nzType="circleIcon:antd" class="icon inline-block" nzTheme="outline"></span>
+                      <span nz-icon nzType="plus-circle" (click)="handleOpenObject(chilUnit.id, $event)"
+                        class="icon inline-block !translate-x-[-50%] bg-white rounded-[50%] cursor-pointer"
+                        nzTheme="outline"></span>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+              <!-- Thêm mới Unit -->
+              <div class="!translate-x-[29%] flex flex-col gap-3 mt-3">
+                <div class="hover:text-[#1890ff] w-fit">
+                  <span nz-icon nzType="ghostIcon:antd" class="icon inline-block" nzTheme="outline"></span>
+                  <span nz-icon nzType="plus-circle" (click)="handleOpenAddUnit(tenant.id, $event)"
+                    class="icon inline-block !translate-x-[-50%] bg-white rounded-[50%] cursor-pointer"
+                    nzTheme="outline"></span>
+                </div>
+              </div>
+            </ul>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </nz-sider>
+  <nz-layout class="bg-white" [ngClass]="{ 'ml-[280px]': !isCollapsed, 'lg:ml-[80px]': isCollapsed }">
+    <nz-content>
+      <div class="border-t border-solid border-primary px-1 h-full" [class.hidden]="!isCollapsed"
+        [class.lg:block]="!isCollapsed">
+        <router-outlet></router-outlet>
+      </div>
+    </nz-content>
+  </nz-layout>
+</nz-layout>
+
+<app-popup-add-edit-task *ngIf="visibleList" [idUnit]="idUnit" (visibleList)="handleVisibleList($event)"
+  [isVisible]="visibleList"></app-popup-add-edit-task>
+
+<app-unit-popup-add-edit *ngIf="visibleAddUnit" [idUnit]="idUnit" [viewDetailUnit]="viewDetailUnit" [idTenant]="idTenant" [idParentUnit]="idParentUnit" (visibleList)="handleVisibleAddUnit($event)"
+  [isVisible]="visibleAddUnit"
+  (unitCreated)="handleUnitCreated($event)"
+  (unitUpdated)="handleUnitCreated($event)"
+  (unitChilCreated)="handleUnitChilCreated($event)"
+  (unitDeleted)="handleUnitDeleted($event)"
+  ></app-unit-popup-add-edit>
+
+<app-change-orgnization-popup *ngIf="isVisiblePopUpChangeOrgnization"
+  [isVisiblePopUpChangeOrgnization]="isVisiblePopUpChangeOrgnization"
+  (visiblePopUpChangeOrgnization)="handelVisiblePopUpChangeOrgnization($event)"
+  (pinOrganization)="handlePinOrganization($event)"
+  (hideTenant)="handleToggleVisibilityTenant($event)"
+></app-change-orgnization-popup>
+
+<app-tenant-popup-add-edit *ngIf="isVisiblePopUpCreateOrgnization"
+  [idTenant]="idTenant"
+  [isVisiblePopUpCreateOrgnization]="isVisiblePopUpCreateOrgnization"
+  (visiblePopUpCreateOrgnization)="handelVisiblePopUpCreateOrgnization($event)"
+  (tenantCreated)="handleTenantCreated($event)"
+  (unitCreated)="handleUnitCreated($event)"
+  (tenantUpdated)="handleTenantCreated($event)"
+></app-tenant-popup-add-edit>
+
+<app-popup-add-edit-object *ngIf="visibleListObject" 
+  [idUnit]="idUnit" 
+  [selectedTenant]="getSelectedTenant()"
+  [selectedUnit]="getSelectedUnit()"
+  (visibleListObject)="handleVisibleListObject($event)"
+  [isVisible]="visibleListObject"
+  (objectCreated)="handleObjectCreated($event)"
+></app-popup-add-edit-object>

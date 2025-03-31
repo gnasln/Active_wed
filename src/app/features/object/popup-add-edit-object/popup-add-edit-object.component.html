@@ -1,0 +1,76 @@
+<nz-modal [(nzVisible)]="isVisible" nzCentered [nzContent]="modalContent" [nzFooter]="modalFooter"
+    (nzOnCancel)="handleCancel()">
+
+    <ng-template #modalContent>
+        <div class="text-center text-primary font-semibold text-[40px]">
+            <span>{{'PopUpAddEditObject.object'|translate}}</span>
+        </div>
+        <div class="px-[30px]">
+            <div class="flex items-center text-[20px] font-medium">
+                <span>{{selectedTenant?.name || 'Tổ chức'}}</span>
+                <span nz-icon nzType="arrowsIcon:antd" class="icon" nzTheme="outline"></span>
+                <span>{{selectedUnit?.name || 'Đơn vị'}}</span>
+            </div>
+            <div class="my-4">
+                <!-- Danh sách thành viên -->
+                <div class="flex">
+                    <div *ngFor="let item of listMember let i = index">
+                        <img *ngIf="i<4" [src]="item.img" [alt]="item"
+                            class="size-5 border-white border-2 rounded-[50%]" #member>
+                    </div>
+                    <span nz-icon nzType="plus-circle"
+                        class="text-[20px] icon block bg-white translate-x-[100%] rounded-[50%] cursor-pointer"
+                        nzTheme="outline" (click)="handleOpenPopUpAddMember()" #member></span>
+                </div>
+            </div>
+            
+            <!-- Thêm container cho scrollview -->
+            <div class="object-list-container max-h-[400px] overflow-y-auto">
+                <form [formGroup]="form" class="grid grid-cols-2 w-full h-fit lg:pb-2">
+                    <div class="col-span-2 flex flex-col">
+                        <span>{{'PopUpAddEditObject.target'|translate}}<span class="text-red-500">*</span></span>
+                        <mat-form-field class="custom-input col-span-2" appearance="outline">
+                            <input matInput formControlName="target" />
+                            <mat-error
+                                *ngIf="form.get('target')?.errors?.['required']&& (form.get('target')?.dirty || form.get('target')?.touched)"
+                                class="text-red-600">
+                                {{'PopUpAddEditObject.noEmty'|translate}}
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="flex flex-col col-span-2 translate-y-[-15px]">
+                        <span>{{'PopUpAddEditObject.description'|translate}}</span>
+                        <textarea formControlName="description" placeholder="{{'PopUpAddEditObject.enterDescription'|translate}}"
+                            class="p-2 resize-none h-[250px] border outline-none"></textarea>
+                    </div>
+                    <div class="custom-input col-span-2 mb-2">
+                        <span>{{'PopUpAddEditObject.priorityLevel'|translate}}<span class="text-red-500">*</span></span>
+                        <nz-select [nzSize]="size" nzPlaceHolder="{{'PopUpAddEditObject.priorityLevel'|translate}}"
+                            [nzShowArrow]="true" formControlName="priorityLevel" [nzMaxTagCount]="2" nzAllowClear
+                            class="w-full border-none outline-none">
+                            <nz-option class="bg-red-400" *ngFor="let priority of priorityLevelList"
+                                [nzLabel]="priority.label" [nzValue]="priority.value"></nz-option>
+                        </nz-select>
+                        <span
+                            *ngIf="form.get('priorityLevel')?.errors?.['required']&& (form.get('priorityLevel')?.dirty || form.get('priorityLevel')?.touched)"
+                            class="text-[#f44336] text-[12px]">
+                            {{'PopUpAddEditObject.noEmty'|translate}}
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #modalFooter>
+        <div class="flex justify-center">
+            <button nz-button nzType="primary"
+                class="!bg-primary border-none rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleOk()" [nzLoading]="isConfirmLoading">{{'Button.add'| translate }}</button>
+        </div>
+    </ng-template>
+</nz-modal>
+
+<app-popup-add-member *ngIf="visiblePopUpAddMember" (data)="handleDataPopUpAddMember($event)" [type]="'object'"
+    [unitID]="idUnit" [isVisiblePopUpAddMember]="visiblePopUpAddMember" [dataMember]="dataMember"></app-popup-add-member>

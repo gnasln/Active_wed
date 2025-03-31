@@ -1,0 +1,55 @@
+<div>
+    <div
+        class="border-[rgba(131, 166, 211, 0.64)] border-[3px] border-solid min-h-[200px] bg-white rounded-[20px] overflow-hidden shadow-[2px_0px_7px_0px_rgba(1,87,155,0.30)]">
+
+        <div class="p-6">
+            <div>
+                <div class="grid grid-cols-[fit-content(20px)_1fr] item-center gap-2">
+                    <span nz-icon nzType="keySquareIcon:antd" class="col-span-1 icon w-fit text-[20px] cursor-pointer"
+                        nzTheme="outline"></span>
+                    <span class="col-span-1 text-[20px] font-medium w-fit">Thiết kế 10 giao diện trong 1 tuần</span>
+                    <div class="col-start-2 col-end-3">
+                        <nz-progress [nzPercent]="30" nzStrokeColor="#FFB800"></nz-progress>
+                    </div>
+                    <div class="col-start-2 col-end-3 flex justify-between">
+                        <div class="flex">
+
+                            <div *ngFor="let item of listMember let i = index">
+                                <img *ngIf="i<4" [src]="item.img" [alt]="item"
+                                    class="size-5 border-white border-2 rounded-[50%]" #member>
+                            </div>
+                            <div class="flex justify-center items-center size-5 text-[8px] border-white border-2 rounded-[50%]  bg-primary"
+                                #member>
+                                <span class=" text-white">+{{memberCount}}</span>
+                            </div>
+                        </div>
+
+                        <span class="text-red-500">05/04/2024</span>
+
+                    </div>
+
+                    <div class="col-start-2 col-end-3 ">
+                        <app-task-of-key-result-item [idTask]="'123'"></app-task-of-key-result-item>
+                        <app-task-of-key-result-item [idTask]="'456'"></app-task-of-key-result-item>
+                        <app-task-of-key-result-item [idTask]="'789'"></app-task-of-key-result-item>
+                        <app-task-of-key-result-item [idTask]="'1011'"></app-task-of-key-result-item>
+                        <div class="hover:text-[#1890ff] w-fit flex">
+                            <span nz-icon nzType="circleIcon:antd" class="icon inline-block" nzTheme="outline"></span>
+                            <span nz-icon nzType="plus-circle" (click)="handleOpenAddTask()"
+                                class="cursor-pointer icon inline-block bg-white rounded-[50%] translate-x-[-50%]"
+                                nzTheme="outline"></span>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <!-- task -->
+            <!-- <div class="mt-4"> <app-task-item></app-task-item><app-task-item></app-task-item></div> -->
+
+        </div>
+    </div>
+</div>
+<app-popup-add-edit-task *ngIf="visibleAddTask" (visibleList)="handleVisibleTaskAdd($event)"
+    [isVisible]="visibleAddTask"></app-popup-add-edit-task>

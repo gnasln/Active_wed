@@ -1,0 +1,79 @@
+<nz-modal [(nzVisible)]="isVisible" nzCentered [nzContent]="modalContent" [nzFooter]="modalFooter"
+    (nzOnCancel)="handleCancel()">
+    <!-- <ng-template #modalTitle>
+        <div class="text-center text-primary font-semibold text-[40px]">
+            <span>{{'Menu.unit'|translate}}</span>
+        </div>
+    </ng-template> -->
+
+    <ng-template #modalContent>
+        <div class="text-center text-primary font-semibold text-[40px]">
+            <span>{{'PopUpAddEditKeyResult.keyResult'|translate}}</span>
+        </div>
+        <div class="px-[30px]">
+            <div class="flex items-center text-[20px] font-medium">
+                <span>TrueConnect
+                </span>
+                <span nz-icon nzType="arrowsIcon:antd" class="icon" nzTheme="outline"></span>
+                <span>Active+</span>
+                <span nz-icon nzType="arrowsIcon:antd" class="icon" nzTheme="outline"></span>
+                <span>Rad 1</span>
+            </div>
+            <div class="my-4">
+                <div class="flex">
+
+                    <div *ngFor="let item of listMember let i = index">
+                        <img *ngIf="i<4" [src]="item.img" [alt]="item"
+                            class="size-5 border-white border-2 rounded-[50%]" #member>
+                    </div>
+                    <!-- <div class="flex justify-center items-center size-5 text-[8px] border-white border-2 rounded-[50%]  bg-primary"
+                        #member>
+                        <span class=" text-white">+{{memberCount}}</span>
+                    </div> -->
+                    <span nz-icon nzType="plus-circle"
+                        class="text-[20px] icon block bg-white translate-x-[100%] rounded-[50%] cursor-pointer"
+                        nzTheme="outline" (click)="handleOpenPopUpAddMember()" #member></span>
+                </div>
+            </div>
+            <form [formGroup]="form" class="grid grid-cols-2 w-full  h-fit lg:pb-2 overflow-auto">
+                <div class="col-span-2 flex flex-col">
+                    <span>{{'PopUpAddEditKeyResult.scale'|translate}}<span class="text-red-500">*</span></span>
+                    <mat-form-field class="custom-input col-span-2" appearance="outline">
+                        <input matInput formControlName="scale" />
+                        <mat-error
+                            *ngIf="form.get('scale')?.errors?.['required']&& (form.get('scale')?.dirty || form.get('scale')?.touched)"
+                            class="text-red-600">
+                            {{'PopUpAddEditKeyResult.noEmty'|translate}}
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="flex flex-col col-span-2 translate-y-[-15px]">
+                    <span>{{'PopUpAddEditKeyResult.description'|translate}}</span>
+                    <textarea placeholder="{{'PopUpAddEditKeyResult.enterDescription'|translate}}"
+                        class="p-2 resize-none h-[250px] border outline-none"></textarea>
+                </div>
+                <mat-form-field class="custom-input  col-span-2" appearance="outline">
+                    <mat-label>{{'PopUpAddEditKeyResult.deadline'| translate}}</mat-label>
+                    <input formControlName="deadline" matInput [matDatepicker]="picker" />
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+            </form>
+
+        </div>
+    </ng-template>
+
+    <ng-template #modalFooter>
+        <div class="flex justify-center">
+            <button nz-button nzType="primary"
+                class="!bg-primary text-white border-none rounded-lg hover:opacity-60 hover:bg-primary  hover:white"
+                (click)="handleOk()" [nzLoading]="isConfirmLoading">{{'Button.add'| translate }}</button>
+        </div>
+    </ng-template>
+</nz-modal>
+
+
+
+<app-popup-add-member [type]="'keyResult'" [objectId]="objectId" *ngIf="visiblePopUpAddMember" (data)="handleDataPopUpAddMember($event)"
+    [isVisiblePopUpAddMember]="visiblePopUpAddMember" [dataMember]="dataMember"></app-popup-add-member>

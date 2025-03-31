@@ -1,0 +1,93 @@
+<nz-modal [(nzVisible)]="isVisible" nzCentered [nzContent]="modalContent" [nzFooter]="modalFooter"
+    (nzOnCancel)="handleCancel()" class="!shadow-[2px_0px_7px_0px_rgba(1,87,155,0.30)]">
+    <!-- <ng-template #modalTitle>
+        <div class="text-center text-primary font-semibold text-[40px]">
+            <span>{{'Menu.unit'|translate}}</span>
+        </div>
+    </ng-template> -->
+
+    <ng-template #modalContent>
+        <div class="text-center text-primary font-semibold text-[40px]">
+            <span>{{'Menu.unit'|translate}}</span>
+        </div>
+        <div class="px-[30px]">
+            <span class="text-[#1C274C] text-[20px] font-medium">TrueConnect</span>
+
+            <div class="my-4">
+                <div class="flex">
+
+                    <div *ngFor="let item of listMember let i = index">
+                        <img *ngIf="i<4" [src]="item.img" [alt]="item"
+                            class="size-5 border-white border-2 rounded-[50%]" #member>
+                    </div>
+                    <!-- <div class="flex justify-center items-center size-5 text-[8px] border-white border-2 rounded-[50%]  bg-primary"
+                        #member>
+                        <span class=" text-white">+{{memberCount}}</span>
+                    </div> -->
+                    <span nz-icon nzType="plus-circle"
+                        class="text-[20px] icon block bg-white translate-x-[100%] rounded-[50%] cursor-pointer"
+                        nzTheme="outline" (click)="handleOpenPopUpAddMember()" #member></span>
+                </div>
+            </div>
+            <form [formGroup]="form" class="grid grid-cols-2 w-full  h-fit lg:pb-2 overflow-auto">
+                <div class="col-span-2 flex flex-col">
+                    <span>{{'PopUpAddEditUnit.unitName'|translate}}<span class="text-red-500">*</span></span>
+                    <mat-form-field class="custom-input col-span-2" appearance="outline">
+                        <input matInput formControlName="unitTitle" />
+                        <mat-error
+                            *ngIf="form.get('unitTitle')?.errors?.['required']&& (form.get('unitTitle')?.dirty || form.get('unitTitle')?.touched)"
+                            class="text-red-600">
+                            {{'PopUpAddEditUnit.noEmty'|translate}}
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+                <!-- <div class="custom-input col-span-2 mb-2">
+                    <span>{{'PopUpAddEditUnit.member'|translate}}<span class="text-red-500">*</span></span>
+                    <nz-select [nzSize]="size" nzMode="multiple" nzPlaceHolder="{{'PopUpAddEditUnit.member'|translate}}"
+                        [nzShowArrow]="true" formControlName="member" [nzMaxTagCount]="2" nzAllowClear
+                        class="w-full border-none outline-none">
+                        <nz-option *ngFor="let status of statusList" [nzLabel]="status.label"
+                            [nzValue]="status.value"></nz-option>
+                    </nz-select>
+                    <span
+                        *ngIf="form.get('member')?.errors?.['required']&& (form.get('member')?.dirty || form.get('member')?.touched)"
+                        class="text-[#f44336] text-[12px]">
+                        {{'PopUpAddEditUnit.noEmty'|translate}}
+                    </span>
+                </div> -->
+                <div class="flex flex-col col-span-2 ">
+                    <span>{{'PopUpAddEditUnit.description'|translate}}</span>
+                    <textarea formControlName="description"
+                        placeholder="{{'PopUpAddEditUnit.enterDescription'|translate}}"
+                        class="p-2 resize-none h-[250px] border outline-none"></textarea>
+                </div>
+            </form>
+            <div class="flex flex-col items-center justify-center gap-y-4">
+                <span class="text-primary underline cursor-pointer hover:opacity-85"
+                (click)="handleOpenPopUpSubTaskList(idTaskDetail)">{{'PopUpAddEditUnit.listUnitTask'|translate}}
+                </span>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #modalFooter>
+        <div class="flex justify-center">
+            <button *ngIf="!idUnit" nz-button nzType="primary"
+                class="!bg-primary  border-none  rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleOk()" [nzLoading]="isConfirmLoading">{{'Button.add'| translate }}</button>
+
+            <button *ngIf="idUnit" nz-button nzType="primary"
+                class="!bg-primary  border-none  rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleEditUnit()" [nzLoading]="isConfirmLoading">{{'Button.save'| translate }}</button>
+            <button *ngIf="idUnit" nz-button
+                class="!bg-red-600  border-none  rounded-lg hover:opacity-60  text-white hover:text-black" nz-popconfirm
+                nzPopconfirmTitle="{{'Toast.confirmDelete'|translate}} " (nzOnConfirm)="handleDeleteUnit()"
+                nzPopconfirmPlacement="top" [nzLoading]="isConfirmLoading" nzCancelText="{{'Button.cancel'|translate}}"
+                nzOkText="{{'Button.confirm'|translate}}">{{'Button.delete'| translate }}</button>
+        </div>
+    </ng-template>
+</nz-modal>
+
+<app-popup-add-member *ngIf="visiblePopUpAddMember" (data)="handleDataPopUpAddMember($event)"
+    [isVisiblePopUpAddMember]="visiblePopUpAddMember" [unitID]="idUnit" [type]="'task'"
+    [dataMember]="dataMember"></app-popup-add-member>

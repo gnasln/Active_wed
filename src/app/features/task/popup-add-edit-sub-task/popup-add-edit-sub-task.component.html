@@ -1,0 +1,111 @@
+<nz-modal [(nzVisible)]="isVisible" nzCentered [nzContent]="modalContent" [nzFooter]="modalFooter"
+    (nzOnCancel)="handleCancel()">
+    <!-- <ng-template #modalTitle>
+        <div class="text-center text-primary font-semibold text-[40px]">
+            <span>{{'Menu.taskName'|translate}}</span>
+        </div>
+    </ng-template> -->
+
+    <ng-template #modalContent>
+        <div class="text-center text-primary font-semibold text-[40px]">
+            <span>{{'Menu.task'|translate}}</span>
+        </div>
+        <div class="px-[30px]">
+            <div class="my-1">
+                <div class="flex">
+
+                    <div *ngFor="let item of listMember let i = index">
+                        <img *ngIf="i<4" [src]="item.img" [alt]="item"
+                            class="size-5 border-white border-2 rounded-[50%]" #member>
+                    </div>
+                    <!-- <div class="flex justify-center items-center size-5 text-[8px] border-white border-2 rounded-[50%]  bg-primary"
+                        #member>
+                        <span class=" text-white">+{{memberCount}}</span>
+                    </div> -->
+                    <span nz-icon nzType="plus-circle"
+                        class="text-[20px] icon block bg-white translate-x-[100%] rounded-[50%] cursor-pointer"
+                        nzTheme="outline" (click)="handleOpenPopUpAddMember()" #member></span>
+                </div>
+            </div>
+            <form [formGroup]="form" class="grid grid-cols-2 w-full gap-2 h-fit lg:pb-2 overflow-auto text-[#003560]">
+                <div class="col-span-2 flex flex-col">
+                    <span>{{'PopUpAddEditTask.taskName'|translate}}<span class="text-red-500">*</span></span>
+                    <mat-form-field class="custom-input col-span-2" appearance="outline">
+                        <input matInput formControlName="taskName" />
+                        <mat-error
+                            *ngIf="form.get('taskName')?.errors?.['required']&& (form.get('taskName')?.dirty || form.get('taskName')?.touched)"
+                            class="text-red-600">
+                            {{'PopUpAddEditTask.noEmty'|translate}}
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="flex flex-col col-span-2 translate-y-[-15px]">
+                    <span>{{'PopUpAddEditTask.description'|translate}}</span>
+                    <textarea placeholder="{{'PopUpAddEditTask.enterDescription'|translate}}"
+                        class="p-2 resize-none h-[250px] border text-black border-[#01579B4D] outline-none"
+                        formControlName="description"></textarea>
+                </div>
+                <div class="custom-input col-span-2 mb-2">
+                    <span>{{'PopUpAddEditTask.priorityLevel'|translate}}<span class="text-red-500">*</span></span>
+                    <nz-select [nzSize]="size" nzPlaceHolder="{{'PopUpAddEditTask.priorityLevel'|translate}}"
+                        [nzShowArrow]="true" formControlName="priorityLevel" [nzMaxTagCount]="2" nzAllowClear
+                        class="w-full border-none outline-none">
+                        <nz-option class="bg-red-400" *ngFor="let priority of priorityLevelList"
+                            [nzLabel]="priority.label" [nzValue]="priority.value"></nz-option>
+                    </nz-select>
+                    <span
+                        *ngIf="form.get('priorityLevel')?.errors?.['required']&& (form.get('priorityLevel')?.dirty || form.get('priorityLevel')?.touched)"
+                        class="text-[#f44336] text-[12px]">
+                        {{'PopUpAddEditTask.noEmty'|translate}}
+                    </span>
+                </div>
+                <div class="flex flex-col col-span-2">
+                    <span>{{'PopUpAddEditTask.deadline'|translate}}</span>
+                    <mat-form-field class="custom-input  col-span-2 w-full" appearance="outline">
+                        <!-- <mat-label>{{'PopUpAddEditTask.deadline'| translate}}</mat-label> -->
+                        <input formControlName="deadline" matInput [matDatepicker]="picker" />
+                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+
+
+
+                <div *ngIf="idTaskDetail" class="flex flex-col col-span-2 translate-y-[-15px]">
+                    <span>{{'PopUpAddEditTask.TaskInfor'|translate}}</span>
+                    <textarea placeholder="{{'PopUpAddEditTask.enterTaskInfor'|translate}}"
+                        class="p-2 resize-none h-[250px] border outline-none  border-[#01579B4D]"
+                        formControlName="taskInfor"></textarea>
+                </div>
+            </form>
+            <!-- <div class="flex flex-col items-center justify-center gap-y-4">
+                <span *ngIf="idTaskDetail" class="text-primary underline cursor-pointer hover:opacity-85"
+                    (click)="handleOpenPopUpSubTaskList(idTaskDetail)">{{'PopUpAddEditTask.listSubTask'|translate}}
+                </span>
+                <span>Chỉnh sửa lần cuối: 15/04/2024 14:00 <i class="fa-regular fa-eye cursor-pointer"
+                        (click)="handleOpenEditTaskHistory(1)"></i></span>
+            </div> -->
+        </div>
+    </ng-template>
+
+    <ng-template #modalFooter>
+        <div class="flex justify-center">
+            <button *ngIf="!idTaskDetail" nz-button nzType="primary"
+                class="!bg-primary  border-none  rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleOk()" [nzLoading]="isConfirmLoading">{{'Button.add'| translate }}</button>
+            <button *ngIf="idTaskDetail" nz-button nzType="primary"
+                class="!bg-primary  border-none  rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleEditTask()" [nzLoading]="isConfirmLoading">{{'Button.save'| translate }}</button>
+            <button *ngIf="idTaskDetail" nz-button
+                class="!bg-red-600  border-none  rounded-lg hover:opacity-60  text-white hover:text-black" nz-popconfirm
+                nzPopconfirmTitle="{{'Toast.confirmDelete'|translate}} " (nzOnConfirm)="handleDeleteTask()"
+                nzPopconfirmPlacement="top" [nzLoading]="isConfirmLoading" nzCancelText="{{'Button.cancel'|translate}}"
+                nzOkText="{{'Button.confirm'|translate}}">{{'Button.delete'| translate }}</button>
+        </div>
+    </ng-template>
+</nz-modal>
+
+<app-popup-add-member *ngIf="visiblePopUpAddMember" (data)="handleDataPopUpAddMember($event)"
+    [isVisiblePopUpAddMember]="visiblePopUpAddMember" [unitID]="idUnit" [type]="'task'"
+    [dataMember]="dataMember"></app-popup-add-member>

@@ -1,0 +1,50 @@
+<nz-modal [(nzVisible)]="isVisiblePopUpEditTaskHistory" nzCentered [nzContent]="modalContent" [nzFooter]="modalFooter"
+    (nzOnCancel)="handleCancel()">
+
+    <ng-template #modalContent>
+        <div class="text-center text-primary font-semibold text-[40px] pb-5">
+            <span>{{'PopUpEditTaskHistory.editTaskHistory'|translate}}</span>
+        </div>
+        <div *ngFor="let item of listHistory let i = index" class="px-[30px] flex flex-col gap-2">
+            <div class=" pb-6 border-b-[1px] border-[#000]">
+                <div class="flex justify-between pt-1">
+                    <span class=" text-primary font-medium">{{item.modifiedDate | date:'dd/MM/yyyy - HH:mm'}}</span>
+                    <span class="text-primary font-medium"></span>
+                </div>
+                <div>
+                    <span class=" font-medium">Nhiệm vụ: </span>
+                    <span>{{item.title}}</span>
+                </div>
+                <div *ngIf="item.description">
+                    <span class=" font-medium">Mô tả: </span>
+                    <span>{{item.description}}</span>
+                </div>
+                <div>
+                    <span class=" font-medium">Mức độ ưu tiên: </span>
+                    <span class=" font-medium" [ngClass]="{
+                        'text-red-500': item.priority === 'High',
+                        'text-yellow-500': item.priority === 'Medium',
+                        'text-green-500': item.priority === 'Low'
+                    }">
+                        {{ item.priority }}
+                    </span>
+                </div>
+                <div>
+                    <span class=" font-medium">Ngày hết hạn: </span>
+                    <span>{{item.dueDate | date:'dd/MM/yyyy'}}</span>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="hasMoreData" class="text-center mt-4">
+            <button nz-button nzType="link" (click)="loadMore()">{{ 'UnitItem.seeMore' | translate }}</button>
+        </div>
+    </ng-template>
+
+    <ng-template #modalFooter>
+        <div class="flex justify-center">
+            <button nz-button nzType="primary"
+                class="!bg-primary border-none rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleCancel()" [nzLoading]="isConfirmLoading">{{'Button.close'| translate }}</button>
+        </div>
+    </ng-template>
+</nz-modal>

@@ -1,0 +1,9 @@
+::ng-deep.ant-checkbox-inner {
+  border-radius: 50% !important;
+}
+
+::ng-deep.ant-checkbox-checked {
+  .ant-checkbox-inner {
+    background-color: green;
+  }
+}

@@ -1,0 +1,52 @@
+<nz-modal nzWidth="600" [(nzVisible)]="isVisiblePopUpChangeOrgnization" nzCentered [nzContent]="modalContent"
+    [nzFooter]="modalFooter" (nzOnCancel)="handleCancel()">
+
+    <ng-template #modalContent>
+        <div class="text-center text-primary font-semibold text-[30px]">
+            <span>{{'settingOrgnizationPopUp.settingOrgnization'|translate}}</span>
+        </div>
+        <div class="mt-[20px] w-[500px]">
+            <div class="flex justify-around h-10 gap-6 w-full text-[18px] font-medium">
+                <div class="text-center w-[60%] border-r-[1px] border-primary">Tên tổ chức</div>
+                <div class="text-center w-[40%]">Quản lý</div>
+            </div>
+            <div *ngFor="let tenant of tenants; let index = index"
+            class="w-full"
+            >
+                <div class="flex justify-around w-full h-10 gap-6 border-t-[1px] border-primary">
+                    <div class="flex items-center justify-center border-r-[1px] border-primary gap-1 w-[60%]">
+                        <span *ngIf="pinnedTenantId === tenant.id" nz-icon nzType="pinIcon:antd" nzTheme="outline" class="text-[20px] ml-2"></span>
+                        <span [class.opacity-40]="hiddenTenants.has(tenant.id)">{{tenant.name}}</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-1 w-[40%]">
+                        <span [class.opacity-40]="hiddenTenants.has(tenant.id)">{{tenant.ownerName}}</span>
+                        <div class="border-none">
+                            <div class="border-none cursor-pointer" nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" nz-button nzType="default"
+                            [nzPlacement]="'bottomRight'">
+                            <span nz-icon nzType="threeDots:antd" nzTheme="outline" class="text-[20px] ml-2"></span>
+                          </div>
+                          <nz-dropdown-menu #menu="nzDropdownMenu">
+                            <ul nz-menu>
+                                <li class="h-[40px] text-center hover:text-primary hover:bg-[#ccc]" (click)="showDisplayPin(tenant.id)" nz-menu-item >
+                                    {{ pinnedTenantId === tenant.id ? 'Bỏ ghim' : 'Ghim' }}
+                                </li>
+                                <li (click)="toggleVisibility(tenant.id)" class="h-[40px] text-center hover:text-primary hover:bg-[#ccc]" nz-menu-item >
+                                    {{ hiddenTenants.has(tenant.id) ? 'Hiển thị' : 'Ẩn' }}
+                                </li>
+                            </ul>
+                          </nz-dropdown-menu>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #modalFooter>
+        <div class="flex justify-center">
+            <button nz-button nzType="primary"
+                class="!bg-primary w-[120px] border-none rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleOk()" [nzLoading]="isConfirmLoading">{{'Button.save'| translate }}</button>
+        </div>
+    </ng-template>
+</nz-modal>

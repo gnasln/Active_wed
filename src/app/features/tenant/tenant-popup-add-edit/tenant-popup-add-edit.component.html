@@ -1,0 +1,74 @@
+<nz-modal [(nzVisible)]="isVisiblePopUpCreateOrgnization" nzCentered [nzContent]="modalContent" [nzFooter]="modalFooter"
+    (nzOnCancel)="handleCancel()">
+    <ng-template #modalContent>
+        <div class="text-center text-primary font-semibold text-[40px]">
+            <span>{{'Menu.tenant'|translate}}</span>
+        </div>
+        <div class="px-[30px]">
+            <div class="my-4">
+                <div class="flex justify-between">
+                    <div class="flex">
+                        <div *ngFor="let item of listMember let i = index">
+                            <img *ngIf="i<4" [src]="item.img" [alt]="item"
+                                class="size-5 border-white border-2 rounded-[50%]" #member>
+                        </div>
+                        <div (click)="handleOpenPopUpAddMember()" class="flex items-center">
+                            <span nz-icon nzType="ghost:antd" class="icon text-[24px] cursor-pointer"
+                            nzTheme="outline"></span>
+                            <span class="" nz-icon nzType="plus-circle"
+                                class="p-[4px] ml-[-40px] text-[20px] icon block bg-white translate-x-[100%] rounded-[50%] cursor-pointer"
+                                nzTheme="outline" #member></span>
+                        </div>
+                    </div>
+                    <div class="text-center text-textColor text-[16px] mt-2">
+                        <span>{{ today | date: 'dd/MM/yyyy' }}</span>
+                    </div>
+                </div>
+            </div>
+            <form [formGroup]="form" class="grid grid-cols-2 w-full  h-fit lg:pb-2 overflow-auto">
+                <div class="col-span-2 flex flex-col">
+                    <span>{{'PopupAddEditTenant.tenantName'|translate}}<span class="text-red-500">*</span></span>
+                    <mat-form-field class="custom-input col-span-2" appearance="outline">
+                        <input matInput formControlName="tenantTitle" />
+                        <mat-error
+                            *ngIf="form.get('tenantTitle')?.errors?.['required']&& (form.get('tenantTitle')?.dirty || form.get('tenantTitle')?.touched)"
+                            class="text-red-600">
+                            {{'PopUpAddEditUnit.noEmty'|translate}}
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col col-span-2 ">
+                    <span>{{'PopupAddEditTenant.description'|translate}}</span>
+                    <textarea formControlName="description"
+                        placeholder="{{'PopUpAddEditUnit.enterDescription'|translate}}"
+                        class="p-2 resize-none h-[250px] border outline-none"></textarea>
+                </div>
+            </form>
+            <!-- <div class="flex flex-col items-center justify-center gap-y-4">
+                <span class="text-primary underline cursor-pointer hover:opacity-85"
+                    >{{'PopUpAddEditUnit.listUnitTask'|translate}}
+                </span>
+            </div> -->
+        </div>
+    </ng-template>
+    <ng-template #modalFooter>
+        <div class="flex justify-center">
+            <button *ngIf="!idTenant" nz-button nzType="primary"
+                class="!bg-primary  border-none  rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleOk()" [nzLoading]="isConfirmLoading">{{'Button.add'| translate }}</button>
+
+            <button *ngIf="idTenant" nz-button nzType="primary"
+                class="!bg-primary  border-none  rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleOk()" [nzLoading]="isConfirmLoading">{{'Button.save'| translate }}</button>
+            <button *ngIf="idTenant" nz-button
+                class="!bg-red-600  border-none  rounded-lg hover:opacity-60  text-white hover:text-black" nz-popconfirm
+                nzPopconfirmTitle="{{'Toast.confirmDelete'|translate}} "
+                nzPopconfirmPlacement="top" [nzLoading]="isConfirmLoading" nzCancelText="{{'Button.cancel'|translate}}"
+                nzOkText="{{'Button.confirm'|translate}}">{{'Button.delete'| translate }}</button>
+        </div>
+    </ng-template>
+</nz-modal>
+
+<app-popup-add-member *ngIf="visiblePopUpAddMember" (data)="handleDataPopUpAddMember($event)"
+    [isVisiblePopUpAddMember]="visiblePopUpAddMember" [type]="'unit'" [dataMember]="dataMember">
+</app-popup-add-member>
