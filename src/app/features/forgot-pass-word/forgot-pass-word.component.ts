@@ -55,7 +55,7 @@ export class ForgotPassWordComponent {
       this.form.get('reciveOTP')?.markAsTouched();
       return;
     }
-    const selectedOption = this.form.get('reciveOTP')?.value;
+    const selectedOption = this.form.get('receiveOTP')?.value;
     console.log("OKE: ", selectedOption)
     this.isVisiblePopUpOpen.emit({
       thisPopUp: false,

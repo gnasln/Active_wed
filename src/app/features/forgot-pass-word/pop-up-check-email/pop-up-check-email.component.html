@@ -9,10 +9,10 @@
                 <mat-form-field class="custom-input col-span-2  w-full" appearance="outline">
                     <input class="!w-[85%] inputName" matInput formControlName="email" placeholder="Nhập địa chỉ email bạn đã đăng ký tài khoản" />
                     <mat-error class="text-red-600" *ngIf="form.get('email')?.errors?.['required']">
-                        Email is required
+                        Không được bỏ trống
                     </mat-error>
                     <mat-error class="text-red-600" *ngIf="form.get('email')?.errors?.['email']">
-                      Invalid email format
+                        Email không hợp lệ
                     </mat-error>
                 </mat-form-field>
             </form>

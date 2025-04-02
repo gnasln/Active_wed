@@ -17,6 +17,10 @@ export class TenantService {
     return this.http.get(this.apiUrl + `/api/tenant/get-all-from-owner`);
   }
 
+  getListTenantByAdmin(): Observable<any> {
+    return this.http.get(this.apiUrl + `/api/tenant/get-all-by-admin`);
+  }
+
   getListTenantFromMember(): Observable<any> {
     return this.http.get(this.apiUrl + `/api/tenant/get-all-from-member`);
   }
@@ -31,5 +35,9 @@ export class TenantService {
 
   updateTenant(body: any): Observable<any> {
     return this.http.patch(this.apiUrl + '/api/tenant/update', body)
+  }
+
+  deleteTenant(idTenant: string): Observable<any> {
+    return this.http.delete(this.apiUrl + `/api/tenant/delete/${idTenant}`);
   }
 }

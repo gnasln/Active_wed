@@ -19,6 +19,7 @@ import { Store } from '@ngrx/store';
 import { loadTenant } from '../../../store/Tenant.action';
 import { PopupAddMemberComponent } from './popup-add-member/popup-add-member.component';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { AuthService } from '../../../core/api/auth.service';
 
 @Component({
   selector: 'app-tenant-popup-add-edit',
@@ -51,12 +52,15 @@ export class TenantPopupAddEditComponent implements OnInit{
   @Output() visiblePopUpCreateOrgnization = new EventEmitter<boolean>();
   @Output() tenantCreated = new EventEmitter<any>(); 
   @Output() tenantUpdated = new EventEmitter<any>(); 
+  @Output() tenantDeleted = new EventEmitter<any>();
+
 
   listMember: any = [];
   listMemberName: any = [];
   isConfirmLoading = false;
   _store = inject(Store);
   today: any = '';
+  public isAdmin: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -65,6 +69,8 @@ export class TenantPopupAddEditComponent implements OnInit{
     private translate: TranslateService,
     private tenantService: TenantService,
     private message: NzMessageService,
+    public authService: AuthService,
+    
   ) {
     this.today = new Date();
   }
@@ -72,6 +78,13 @@ export class TenantPopupAddEditComponent implements OnInit{
     if (this.idTenant) {
       this.getDetailTenant();
     }
+
+    // Kiểm tra role
+  this.authService.getUserInfo().subscribe(userInfo => {
+    if (userInfo && userInfo.role) {
+      this.isAdmin = userInfo.role.includes('Administrator');
+    }
+  });
   }
 
   public form: FormGroup = this.fb.group({
@@ -195,5 +208,24 @@ export class TenantPopupAddEditComponent implements OnInit{
 
   handleCancel(): void {
     this.visiblePopUpCreateOrgnization.emit(false);
+  }
+
+  handleDelete(): void {
+    this.isConfirmLoading = true;
+    
+    // Không cần kiểm tra role ở đây nữa vì đã ẩn nút xóa với người dùng không phải admin
+    this.tenantService.deleteTenant(this.idTenant).subscribe(
+      (response) => {
+        this.isConfirmLoading = false;
+        this.tenantDeleted.emit(this.idTenant);
+        this.visiblePopUpCreateOrgnization.emit(false);
+        this.message.success('Xóa tenant thành công');
+      },
+      (error) => {
+        this.isConfirmLoading = false;
+        console.error('Error deleting tenant:', error);
+        this.message.error('Xóa tenant thất bại');
+      }
+    );
   }
 }

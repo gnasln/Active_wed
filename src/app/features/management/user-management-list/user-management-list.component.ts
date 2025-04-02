@@ -33,6 +33,7 @@ export class UserManagementListComponent implements OnInit{
   public totalCount: number = 0;
   public listUserManagements : any = [];
   public role: string;
+  public selectedUser: any = null;
   public params = {
     page: 1,
     pageSize:10
@@ -88,8 +89,8 @@ export class UserManagementListComponent implements OnInit{
   handelVisiblePopUpEditManagement(e: boolean) {
     this.isVisiblePopUpEditManagement = e;
   }
-  handelOpenPopUpEditManagement(id: string) {
-    console.log("Id: ", id)
+  handelOpenPopUpEditManagement(user: any) {
+    this.selectedUser = user;
     this.isVisiblePopUpEditManagement = true;
   }
 

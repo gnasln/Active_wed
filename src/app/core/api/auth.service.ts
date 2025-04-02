@@ -35,4 +35,8 @@ export class AuthService {
     const body = { token, email };
     return this.http.post(this.apiUrl + '/api/user/create', body);
   }
+
+  getUserInfo(): Observable<any> {
+    return this.http.get(this.apiUrl + '/connect/userinfo');
+  }
 }

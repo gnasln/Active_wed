@@ -67,7 +67,6 @@ import { unitService } from '../../core/api/unit.service';
 import { PopupAddEditObjectComponent } from '../../features/object/popup-add-edit-object/popup-add-edit-object.component';
 import { ValueUnitService } from '../../core/shared/value-unit.service';
 
-
 @Component({
   selector: 'app-main',
   standalone: true,
@@ -248,20 +247,43 @@ export class MainComponent implements OnInit, OnChanges {
   }
 
   loadTenants() {
-    this.tenantService.getListTenant().subscribe((res: any) => {
-      this.tenants = res.data;
-      this.originalTenantsOrder = [...this.tenants];
-
-      const pinnedTenantId = localStorage.getItem('pinnedTenantId');
-      if (pinnedTenantId) {
-        const pinnedTenant = this.tenants.find((tenant: any) => tenant.id === +pinnedTenantId);
-        if (pinnedTenant) {
-          this.tenants = this.tenants.filter((tenant: any) => tenant.id !== +pinnedTenantId);
-          this.tenants.unshift(pinnedTenant);
-        }
+    this.authService.getUserInfo().subscribe(userInfo => {
+      const isAdmin = userInfo.role.includes('Administrator');
+      
+      if (isAdmin) {
+        this.tenantService.getListTenantByAdmin().subscribe((res: any) => {
+          this.tenants = res.data;
+          this.originalTenantsOrder = [...this.tenants];
+          
+          this.handlePinnedTenant();
+        }, (err) => {
+          console.error(err);
+        });
+      } else {
+        this.tenantService.getListTenant().subscribe((res: any) => {
+          this.tenants = res.data;
+          this.originalTenantsOrder = [...this.tenants];
+          
+          this.handlePinnedTenant();
+        }, (err) => {
+          console.error(err);
+        });
       }
+    }, (err) => {
+      console.error(err);
     });
-    // this.loadUnitbytenant()
+  }
+  
+  // Helper method to handle pinned tenant logic
+  private handlePinnedTenant(): void {
+    const pinnedTenantId = localStorage.getItem('pinnedTenantId');
+    if (pinnedTenantId) {
+      const pinnedTenant = this.tenants.find((tenant: any) => tenant.id === +pinnedTenantId);
+      if (pinnedTenant) {
+        this.tenants = this.tenants.filter((tenant: any) => tenant.id !== +pinnedTenantId);
+        this.tenants.unshift(pinnedTenant);
+      }
+    }
   }
 
   getDeviceType = () => {
@@ -419,6 +441,11 @@ export class MainComponent implements OnInit, OnChanges {
   handleUnitDeleted(unitId: any): void {
     this.units = this.units.filter((unit: any) => unit.id !== unitId); 
     this.cdr.detectChanges(); 
+  }
+
+  handleTenantDeleted(tenantId: any): void {
+    this.tenants = this.tenants.filter((tenant: any) => tenant.id !== tenantId);
+    this.cdr.detectChanges();
   }
 
   listID = [

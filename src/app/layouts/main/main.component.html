@@ -50,12 +50,12 @@
           </nz-dropdown-menu>
           <!-- Tenant -->
           <ul [hidden]="isTenantHidden(tenant.id)" (contextmenu)="contextTenantMenu($event, tenant.id)" [(nzOpen)]="openSubMap[index]" (nzOpenChange)="openHandler(index, true)"
-          *ngFor="let tenant of tenants; let index = index" (click)="loadUnitbytenant(tenant.id, $event)" [id]='tenant.id' nz-submenu [nzTitle]="tenant.name" nzIcon="groupUserIcon:antd" class="menu-item">
-            <nz-dropdown-menu #menuTenant="nzDropdownMenu">
-              <ul nz-menu>
-                <li nz-menu-item (click)="handelOpenPopUpCreateOrgnization(tenant.id, $event)">Chỉnh sửa</li>
-              </ul>
-            </nz-dropdown-menu>
+            *ngFor="let tenant of tenants; let index = index" (click)="loadUnitbytenant(tenant.id, $event)" [id]='tenant.id' nz-submenu [nzTitle]="tenant.name" nzIcon="groupUserIcon:antd" class="menu-item">
+              <nz-dropdown-menu #menuTenant="nzDropdownMenu">
+                <ul nz-menu>
+                  <li nz-menu-item (click)="handelOpenPopUpCreateOrgnization(tenant.id, $event)">Chỉnh sửa</li>
+                </ul>
+              </nz-dropdown-menu>
             <!-- Unit -->
             <ul (contextmenu)="contextUnitMenu($event, unit.id)" nz-submenu *ngFor="let unit of units; let index = index" [(nzOpen)]="openSubMap2[index]" (nzOpenChange)="openHandler2(index, true)" (click)="loadUnitChildren(unit.id, $event)" [nzTitle]="unit.name" nzIcon="ghostIcon:antd" class="menu-item">
               <nz-dropdown-menu #menuUnit="nzDropdownMenu">
@@ -92,16 +92,17 @@
                   </div>
                 </li>
               </ul>
-              <!-- Thêm mới Unit -->
-              <div class="!translate-x-[29%] flex flex-col gap-3 mt-3">
-                <div class="hover:text-[#1890ff] w-fit">
-                  <span nz-icon nzType="ghostIcon:antd" class="icon inline-block" nzTheme="outline"></span>
-                  <span nz-icon nzType="plus-circle" (click)="handleOpenAddUnit(tenant.id, $event)"
-                    class="icon inline-block !translate-x-[-50%] bg-white rounded-[50%] cursor-pointer"
-                    nzTheme="outline"></span>
-                </div>
-              </div>
+              
             </ul>
+            <!-- Thêm mới unit cha -->
+            <div class="!translate-x-[29%] flex flex-col gap-3 mt-3 ">
+              <div class="hover:text-[#1890ff] w-fit">
+                <span nz-icon nzType="ghostIcon:antd" class="icon inline-block" nzTheme="outline"></span>
+                <span nz-icon nzType="plus-circle" (click)="handleOpenAddUnit(tenant.id, $event)"
+                  class="icon inline-block !translate-x-[-50%] bg-white rounded-[50%] cursor-pointer"
+                  nzTheme="outline"></span>
+              </div>
+            </div>
           </ul>
         </li>
       </ul>
@@ -120,13 +121,13 @@
 <app-popup-add-edit-task *ngIf="visibleList" [idUnit]="idUnit" (visibleList)="handleVisibleList($event)"
   [isVisible]="visibleList"></app-popup-add-edit-task>
 
-<app-unit-popup-add-edit *ngIf="visibleAddUnit" [idUnit]="idUnit" [viewDetailUnit]="viewDetailUnit" [idTenant]="idTenant" [idParentUnit]="idParentUnit" (visibleList)="handleVisibleAddUnit($event)"
-  [isVisible]="visibleAddUnit"
-  (unitCreated)="handleUnitCreated($event)"
-  (unitUpdated)="handleUnitCreated($event)"
-  (unitChilCreated)="handleUnitChilCreated($event)"
-  (unitDeleted)="handleUnitDeleted($event)"
-  ></app-unit-popup-add-edit>
+  <app-unit-popup-add-edit *ngIf="visibleAddUnit" [idUnit]="idUnit" [viewDetailUnit]="viewDetailUnit" [idTenant]="idTenant" [idParentUnit]="idParentUnit" (visibleList)="handleVisibleAddUnit($event)"
+    [isVisible]="visibleAddUnit"
+    (unitCreated)="handleUnitCreated($event)"
+    (unitUpdated)="handleUnitCreated($event)"
+    (unitChilCreated)="handleUnitChilCreated($event)"
+    (unitDeleted)="handleUnitDeleted($event)"
+    ></app-unit-popup-add-edit>
 
 <app-change-orgnization-popup *ngIf="isVisiblePopUpChangeOrgnization"
   [isVisiblePopUpChangeOrgnization]="isVisiblePopUpChangeOrgnization"
@@ -142,6 +143,7 @@
   (tenantCreated)="handleTenantCreated($event)"
   (unitCreated)="handleUnitCreated($event)"
   (tenantUpdated)="handleTenantCreated($event)"
+  (tenantDeleted)="handleTenantDeleted($event)"
 ></app-tenant-popup-add-edit>
 
 <app-popup-add-edit-object *ngIf="visibleListObject" 

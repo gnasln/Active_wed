@@ -6,6 +6,7 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { TenantService } from '../../../core/api/tenant.service';
+import { AuthService } from '../../../core/api/auth.service';
 
 @Component({
   selector: 'app-change-orgnization-popup',
@@ -34,16 +35,28 @@ export class ChangeOrgnizationPopupComponent implements OnInit{
   constructor(
     private cdr: ChangeDetectorRef,
     private tenantService: TenantService,
+    private authService: AuthService,
   ){}
 
   ngOnInit(): void {
-    this.tenantService.getListTenant().subscribe(res => {
-      this.tenants = res.data
-    },
-      (err) => {
-        console.error(err);
+    this.authService.getUserInfo().subscribe(userInfo => {
+      const isAdmin = userInfo.role.includes('Administrator');
+      if (isAdmin) {
+        this.tenantService.getListTenantByAdmin().subscribe(res => {
+          this.tenants = res.data;
+        }, (err) => {
+          console.error(err);
+        });
+      } else {
+        this.tenantService.getListTenant().subscribe(res => {
+          this.tenants = res.data;
+        }, (err) => {
+          console.error(err);
+        });
       }
-    )
+    }, (err) => {
+      console.error(err);
+    });
   }
 
   handleOk(): void {
@@ -68,5 +81,25 @@ export class ChangeOrgnizationPopupComponent implements OnInit{
     }
     this.hideTenant.emit(tenantId);
   }
+
+  // Thêm Output EventEmitter trong component
+@Output() deleteTenant = new EventEmitter<number>();
+
+// Thêm phương thức để xử lý sự kiện xóa
+handleDeleteTenant(tenantId: any): void {
+  // Gọi API xóa tenant trước khi emit sự kiện
+  this.tenantService.deleteTenant(tenantId).subscribe(
+    (response) => {
+      // Nếu API thành công, emit sự kiện để thông báo cho component cha
+      this.deleteTenant.emit(tenantId);
+      // Đóng popup hoặc thực hiện hành động khác nếu cần
+      this.visiblePopUpChangeOrgnization.emit(false);
+    },
+    (error) => {
+      console.error('Error deleting tenant:', error);
+      // Xử lý lỗi, có thể hiển thị thông báo cho người dùng
+    }
+  );
+}
 
 }

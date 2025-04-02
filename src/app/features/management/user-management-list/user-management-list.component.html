@@ -26,7 +26,7 @@
         <td scope="col" [ngClass]="{'text-green-500': row.status === 'Đang hoạt động', 'text-red-600': row.status === 'Không hoạt động'}">
           {{ row.status }}
         </td>
-        <td (click)="handelOpenPopUpEditManagement(row.id)" scope="col" class="!text-center cursor-pointer">
+        <td (click)="handelOpenPopUpEditManagement(row)" scope="col" class="!text-center cursor-pointer">
           <span nz-icon nzType="edit:antd" class="icon text-[20px]" nzTheme="outline"></span>
           <span>Chỉnh sửa</span>
         </td>
@@ -40,4 +40,5 @@
 
 <app-user-management-edit *ngIf="isVisiblePopUpEditManagement"
 [isVisiblePopUpEditManagement]="isVisiblePopUpEditManagement"
+[userData]="selectedUser"
 (visiblePopUpEditManagement)="handelVisiblePopUpEditManagement($event)"></app-user-management-edit>

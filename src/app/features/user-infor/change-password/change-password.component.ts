@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -63,9 +63,19 @@ export class ChangePasswordComponent implements OnInit{
   public hideRePass: boolean = true;
   public form: FormGroup = this.fb.group({
     oldPassword: [null, Validators.required],
-    password: [null, [Validators.required, passWordValidator()]],
+    password: [null, [Validators.required, passWordValidator(), this.differentFromOldPassword()]],
     rePass: [null, Validators.required],
   });
+
+  private differentFromOldPassword() {
+    return (control: AbstractControl): {[key: string]: any} | null => {
+      const oldPassword = this.form?.get('oldPassword')?.value;
+      if (oldPassword && control.value === oldPassword) {
+        return { 'sameAsOldPassword': true };
+      }
+      return null;
+    };
+  }
 
   updateValidateRepass(e: any) {
     this.form.get('rePass')?.clearValidators();
@@ -78,6 +88,7 @@ export class ChangePasswordComponent implements OnInit{
       this.form.get('oldPassword')?.markAsTouched();
       this.form.get('password')?.markAsTouched();
       this.form.get('rePass')?.markAsTouched();
+      this.isLoading = false;
       return;
     }
     const body = {
@@ -85,17 +96,18 @@ export class ChangePasswordComponent implements OnInit{
       newPassword: this.form.value.password,
       comfirmedPassword: this.form.value.rePass
     };
-    this.accountService.changePassword(body).subscribe(res => {
-      this.isLoading = true;
-      this.visiblePopUpChangePassword.emit(false);
-      this.message.success('Change Password Success!');
-    },
-      (err) => {
-        this.isLoading = true;
-        this.errorMessage = err.error;
-        this.message.error(err.error);
+    this.accountService.changePassword(body).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        this.visiblePopUpChangePassword.emit(false);
+        this.message.success('Đổi mật khẩu thành công!');
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = err.error.message || 'Mật khẩu cũ không chính xác';
+        this.message.error(this.errorMessage);
       }
-    )
+    });
   }
 
   handleCancel(): void {

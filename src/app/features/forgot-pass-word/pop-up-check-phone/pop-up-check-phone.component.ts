@@ -44,7 +44,7 @@ export class PopUpCheckPhoneComponent {
   ) {}
 
   public form: FormGroup = this.fb.group({
-    phone: [null, [Validators.required]],
+    phone: [null, [Validators.required, Validators.pattern(/^(\+84|0)[1-9][0-9]{8}$/)]],
   });
 
   handleOK(): void {}

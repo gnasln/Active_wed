@@ -9,7 +9,10 @@
                 <mat-form-field class="custom-input col-span-2  w-full" appearance="outline">
                     <input class="!w-[85%] inputName" matInput formControlName="phone" placeholder="Nhập SĐT bạn đã đăng ký tài khoản" />
                     <mat-error class="text-red-600" *ngIf="form.get('phone')?.errors?.['required']">
-                        Phone number is required
+                        Không được bỏ trống
+                    </mat-error>
+                    <mat-error class="text-red-600" *ngIf="form.get('phone')?.errors?.['pattern']">
+                        Số điện thoại không hợp lệ
                     </mat-error>
                 </mat-form-field>
             </form>

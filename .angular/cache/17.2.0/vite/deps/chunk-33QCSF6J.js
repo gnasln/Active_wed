@@ -4,6 +4,7 @@ import {
   coerceCssPixelValue
 } from "./chunk-42SIO26Z.js";
 import {
+  TemplateRef,
   isDevMode
 } from "./chunk-3CFXHCEH.js";
 import {
@@ -47,6 +48,12 @@ function isNotNil(value) {
 function isNil(value) {
   return typeof value === "undefined" || value === null;
 }
+function isNonEmptyString(value) {
+  return typeof value === "string" && value !== "";
+}
+function isTemplateRef(value) {
+  return value instanceof TemplateRef;
+}
 function toBoolean(value) {
   return coerceBooleanProperty(value);
 }
@@ -55,6 +62,9 @@ function toNumber(value, fallbackValue = 0) {
 }
 function toCssPixel(value) {
   return coerceCssPixelValue(value);
+}
+function valueFunctionProp(prop, ...args) {
+  return typeof prop === "function" ? prop(...args) : prop;
 }
 function propDecoratorFactory(name, fallback) {
   function propDecorator(target, propName, originalDescriptor) {
@@ -211,9 +221,12 @@ export {
   warn,
   isNotNil,
   isNil,
+  isNonEmptyString,
+  isTemplateRef,
   toBoolean,
   toNumber,
   toCssPixel,
+  valueFunctionProp,
   InputBoolean,
   InputNumber,
   getElementOffset,
@@ -229,4 +242,4 @@ export {
   updateCSS,
   getStatusClassNames
 };
-//# sourceMappingURL=chunk-BXW7EGDN.js.map
+//# sourceMappingURL=chunk-33QCSF6J.js.map
