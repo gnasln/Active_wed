@@ -68,10 +68,10 @@ import {
   ɵɵtextInterpolate,
   ɵɵviewQuery
 } from "./chunk-3CFXHCEH.js";
+import "./chunk-QOAHSALO.js";
 import {
   fromEvent
 } from "./chunk-GFVJDENN.js";
-import "./chunk-QOAHSALO.js";
 import {
   Subject,
   __decorate,

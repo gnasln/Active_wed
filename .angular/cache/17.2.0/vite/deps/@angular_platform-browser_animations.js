@@ -12,8 +12,8 @@ import "./chunk-B62JIAQI.js";
 import {
   ANIMATION_MODULE_TYPE
 } from "./chunk-3CFXHCEH.js";
-import "./chunk-GFVJDENN.js";
 import "./chunk-QOAHSALO.js";
+import "./chunk-GFVJDENN.js";
 import "./chunk-LOA65BFQ.js";
 import "./chunk-PZQZAEDH.js";
 export {

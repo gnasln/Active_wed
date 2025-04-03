@@ -21,10 +21,10 @@ import {
   ɵɵdirectiveInject,
   ɵɵinject
 } from "./chunk-3CFXHCEH.js";
+import "./chunk-QOAHSALO.js";
 import {
   isObservable
 } from "./chunk-GFVJDENN.js";
-import "./chunk-QOAHSALO.js";
 import {
   AsyncSubject,
   BehaviorSubject,

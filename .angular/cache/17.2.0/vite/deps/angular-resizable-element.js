@@ -19,11 +19,11 @@ import {
   ɵɵdefineNgModule,
   ɵɵdirectiveInject
 } from "./chunk-3CFXHCEH.js";
+import "./chunk-QOAHSALO.js";
 import {
   fromEvent,
   merge
 } from "./chunk-GFVJDENN.js";
-import "./chunk-QOAHSALO.js";
 import {
   Observable,
   Subject,

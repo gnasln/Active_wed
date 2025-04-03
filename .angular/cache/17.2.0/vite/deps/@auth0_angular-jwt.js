@@ -17,10 +17,10 @@ import {
   ɵɵdefineNgModule,
   ɵɵinject
 } from "./chunk-3CFXHCEH.js";
+import "./chunk-QOAHSALO.js";
 import {
   defer
 } from "./chunk-GFVJDENN.js";
-import "./chunk-QOAHSALO.js";
 import {
   map,
   mergeMap,

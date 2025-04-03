@@ -59,10 +59,10 @@ import {
   ɵɵqueryRefresh,
   ɵɵviewQuery
 } from "./chunk-3CFXHCEH.js";
+import "./chunk-QOAHSALO.js";
 import {
   fromEvent
 } from "./chunk-GFVJDENN.js";
-import "./chunk-QOAHSALO.js";
 import {
   ReplaySubject,
   Subject,
