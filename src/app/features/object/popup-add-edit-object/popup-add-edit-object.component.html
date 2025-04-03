@@ -65,9 +65,29 @@
 
     <ng-template #modalFooter>
         <div class="flex justify-center">
-            <button nz-button nzType="primary"
+            <button *ngIf="!objectId" nz-button nzType="primary"
                 class="!bg-primary border-none rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
-                (click)="handleOk()" [nzLoading]="isConfirmLoading">{{'Button.add'| translate }}</button>
+                (click)="handleOk()" [nzLoading]="isConfirmLoading">
+                {{'Button.add'| translate }}
+            </button>
+    
+            <button *ngIf="objectId" nz-button nzType="primary"
+                class="!bg-primary border-none rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleEditObject()" [nzLoading]="isConfirmLoading">
+                {{'Button.save'| translate }}
+            </button>
+            
+            <button *ngIf="objectId" nz-button
+                class="!bg-red-600 border-none rounded-lg hover:opacity-60 text-white hover:text-black" 
+                nz-popconfirm
+                nzPopconfirmTitle="{{'Toast.confirmDelete'|translate}} " 
+                (nzOnConfirm)="handleDelete()"
+                nzPopconfirmPlacement="top" 
+                [nzLoading]="isDeleteLoading" 
+                nzCancelText="{{'Button.cancel'|translate}}"
+                nzOkText="{{'Button.confirm'|translate}}">
+                {{'Button.delete'| translate }}
+            </button>
         </div>
     </ng-template>
 </nz-modal>

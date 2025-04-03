@@ -1,9 +1,4 @@
 import {
-  NavigationEnd,
-  Router,
-  RouterLink
-} from "./chunk-KJTLR3WX.js";
-import {
   NzNoAnimationDirective,
   POSITION_MAP,
   getPlacementName
@@ -12,11 +7,16 @@ import {
   collapseMotion,
   slideMotion,
   zoomBigMotion
-} from "./chunk-MNBSLOJH.js";
+} from "./chunk-XCYI4HFK.js";
 import {
   NzOutletModule,
   NzStringTemplateOutletDirective
 } from "./chunk-UZOPNO7X.js";
+import {
+  NavigationEnd,
+  Router,
+  RouterLink
+} from "./chunk-KJTLR3WX.js";
 import {
   NzIconDirective,
   NzIconModule
@@ -1927,4 +1927,4 @@ export {
   NzMenuDividerDirective,
   NzMenuModule
 };
-//# sourceMappingURL=chunk-DO2WXI6X.js.map
+//# sourceMappingURL=chunk-52MLRAE7.js.map

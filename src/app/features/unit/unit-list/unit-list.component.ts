@@ -7,10 +7,18 @@ import {
   ViewChildren,
   inject,
 } from '@angular/core';
+import { PopupAddEditObjectComponent } from '../../object/popup-add-edit-object/popup-add-edit-object.component';
 import { UnitItemComponent } from './unit-item/unit-item.component';
 import { UnitPopupAddEditComponent } from '../unit-popup-add-edit/unit-popup-add-edit.component';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzProgressModule } from 'ng-zorro-antd/progress';
@@ -39,6 +47,10 @@ import {
 import { ObjectService } from '../../../core/api/object.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ValueUnitService } from '../../../core/shared/value-unit.service';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+import { TenantService } from '../../../core/api/tenant.service';
+import { unitService } from '../../../core/api/unit.service';
 
 @Component({
   selector: 'app-unit-list',
@@ -47,6 +59,12 @@ import { ValueUnitService } from '../../../core/shared/value-unit.service';
     UnitItemComponent,
     UnitPopupAddEditComponent,
     CommonModule,
+    ReactiveFormsModule,
+    NzModalModule,
+    NzFormModule,
+    NzInputModule,
+    NzSelectModule,
+    NzDatePickerModule,
     NzIconModule,
     NzProgressModule,
     ResizableModule,
@@ -56,6 +74,10 @@ import { ValueUnitService } from '../../../core/shared/value-unit.service';
     SubTaskItemComponent,
     PopupAddEditTaskComponent,
     TranslateModule,
+    NzToolTipModule,
+    NzPopconfirmModule,
+      // Thêm PopupAddEditObjectComponent vào đây
+    PopupAddEditObjectComponent
   ],
   templateUrl: './unit-list.component.html',
   styleUrl: './unit-list.component.scss',
@@ -68,6 +90,29 @@ export class UnitListComponent implements OnInit, OnDestroy {
   private pageSize: number = 2;
   public hasMoreData: boolean = true;
   sort: number = 0;
+  // Thêm biến để điều khiển hiển thị PopupAddEditObjectComponent
+editObjectVisible: boolean = false;
+editingObjectId: string = '';
+selectedUnitForEdit: any = null;
+selectedTenantForEdit: any = null;
+
+// Hàm xử lý khi click vào nút chỉnh sửa
+showEditObjectPopup(object: any) {
+  this.editingObjectId = object.id;
+  this.selectedUnitForEdit = { id: object.unitId, name: this.selectedUnitName };
+  this.selectedTenantForEdit = { id: this.valueUnitService.tenantIdSource, name: this.selectedTenantName };
+  this.editObjectVisible = true;
+}
+
+// Hàm callback khi đóng popup
+handleEditObjectClose(event: boolean) {
+  this.editObjectVisible = event;
+  if (!event) {
+    // Refresh danh sách object sau khi chỉnh sửa
+    this.listObjectByUnit();
+  }
+}
+
   onResizeEnd(event: ResizeEvent): void {
     this.style = {
       overflow: 'hidden',
@@ -96,6 +141,12 @@ export class UnitListComponent implements OnInit, OnDestroy {
   route: ActivatedRoute = inject(ActivatedRoute);
   UnitId = this.route.snapshot.params['id'];
   subscription: Subscription;
+  selectedTenantName: string = '';
+  selectedUnitName: string = '';
+  editForm!: FormGroup;
+  isEditModalVisible = false;
+  currentObject: any;
+
   constructor(
     private cdr: ChangeDetectorRef,
     public todoService: ToDOService,
@@ -104,14 +155,49 @@ export class UnitListComponent implements OnInit, OnDestroy {
     private objectService: ObjectService,
     private message: NzMessageService,
     private valueUnitService: ValueUnitService,
+    private tenantService: TenantService,
+    private unitService: unitService,
+    private fb: FormBuilder,
   ) {
     this.valueUnitService.unitId$.subscribe(unitId => {
-      // this.listObjectByUnit(unitId);
-      this.UnitIdService = unitId
+      this.UnitIdService = unitId;
       if(this.UnitIdService) {
         this.listObjectByUnit();
+        // Get unit info
+        this.unitService.getListUnitsByTenant(this.valueUnitService.tenantIdSource).subscribe(
+          (res: any) => {
+            const unit = res.data.find((u: any) => u.id === unitId);
+            if (unit) {
+              this.selectedUnitName = unit.name;
+              this.cdr.detectChanges();
+            }
+          }
+        );
       }
-  });
+    });
+
+    // Get tenant info
+    if (this.valueUnitService.tenantIdSource) {
+      this.tenantService.getDetailTenant(this.valueUnitService.tenantIdSource).subscribe(
+        (res: any) => {
+          if (res.data) {
+            this.selectedTenantName = res.data.name;
+            this.cdr.detectChanges();
+          }
+        }
+      );
+    }
+
+    this.editForm = this.fb.group({
+      id: [''],
+      title: [''],
+      description: [''],
+      priority: [null],
+      dueDate: [null],
+      unitId: [''],
+      memberIds: [[]],
+      memberNames: [[]]
+    });
   }
   ngOnDestroy(): void {
     this.GetListTodoBodyService.body.unitId = undefined;
@@ -260,6 +346,7 @@ export class UnitListComponent implements OnInit, OnDestroy {
     }
     this.objectService.listObjectByUnit(body).subscribe(res => {
       if (res.data){
+        console.log("Objects data:", res.data.items);
         this.listObjects = res.data.items;
         this.cdr.detectChanges();
         if (res.data.items.length < this.pageSize ) {
@@ -284,5 +371,79 @@ export class UnitListComponent implements OnInit, OnDestroy {
   loadMore() {
     this.pageSize++;
     this.listObjectByUnit();
+  }
+
+  handleEditObject(id: string) {
+    this.idUnit = id;
+    this.visibleList = true;
+  }
+
+  handleDeleteObject(id: string) {
+    if (!id) {
+      this.message.error('Không tìm thấy ID của đối tượng');
+      return;
+    }
+
+    this.objectService.deleteObject(id).subscribe(
+      (res: any) => {
+        if (res.data) {
+          // Xóa object khỏi danh sách hiện tại
+          this.listObjects = this.listObjects.filter((obj: any) => obj.id !== id);
+          this.message.success('Xóa đối tượng thành công');
+          // Refresh lại danh sách
+          this.listObjectByUnit();
+          this.cdr.detectChanges();
+        }
+      },
+      (err: any) => {
+        this.message.error('Có lỗi xảy ra khi xóa đối tượng');
+        console.error(err);
+      }
+    );
+  }
+
+  showEditModal(object: any) {
+    this.currentObject = object;
+    this.editForm.patchValue({
+      id: object.id,
+      title: object.title,
+      description: object.description,
+      priority: object.priority,
+      dueDate: object.dueDate ? new Date(object.dueDate) : null,
+      unitId: object.unitId,
+      memberIds: object.memberIds,
+      memberNames: object.memberNames
+    });
+    this.isEditModalVisible = true;
+  }
+
+  handleEditCancel() {
+    this.isEditModalVisible = false;
+    this.editForm.reset();
+  }
+
+  handleEditOk() {
+    if (this.editForm.valid) {
+      const formValue = this.editForm.value;
+      this.objectService.updateObject(formValue).subscribe(
+        (response: any) => {
+          if (response.status === 200) {
+            this.message.success('Cập nhật thành công');
+            // Update the object in the list
+            const index = this.listObjects.findIndex((obj: any) => obj.id === formValue.id);
+            if (index !== -1) {
+              this.listObjects[index] = { ...this.listObjects[index], ...formValue };
+            }
+            this.isEditModalVisible = false;
+            this.editForm.reset();
+          } else {
+            this.message.error('Cập nhật thất bại');
+          }
+        },
+        error => {
+          this.message.error('Có lỗi xảy ra khi cập nhật');
+        }
+      );
+    }
   }
 }

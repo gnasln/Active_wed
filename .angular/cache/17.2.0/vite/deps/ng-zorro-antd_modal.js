@@ -2,13 +2,6 @@ import {
   NzI18nService
 } from "./chunk-FSD4DAVV.js";
 import {
-  reqAnimFrame
-} from "./chunk-3Z4XHAHP.js";
-import {
-  NzOutletModule,
-  NzStringTemplateOutletDirective
-} from "./chunk-UZOPNO7X.js";
-import {
   NzButtonComponent,
   NzButtonModule
 } from "./chunk-KTHVAEGE.js";
@@ -18,6 +11,13 @@ import {
 import {
   NzWaveDirective
 } from "./chunk-BQJZOM27.js";
+import {
+  reqAnimFrame
+} from "./chunk-3Z4XHAHP.js";
+import {
+  NzOutletModule,
+  NzStringTemplateOutletDirective
+} from "./chunk-UZOPNO7X.js";
 import {
   NzIconDirective,
   NzIconModule

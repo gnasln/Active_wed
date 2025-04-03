@@ -20,11 +20,23 @@ export class ObjectService {
     return this.http.patch(this.apiUrl + '/api/object/update', body)
   }
 
+  getObjectDetail(id: string): Observable<any> {
+    return this.http.get(this.apiUrl + `/api/object/object-detail/${id}`)
+  }
+
   listObjectByUnit(body?: any): Observable<any> {
     return this.http.post(this.apiUrl + `/api/object/get-all-object-from-unit`, body);
   }
 
   getMemberObject(id: string): Observable<any> {
     return this.http.get(this.apiUrl + `/api/object/get-all-member/${id}`);
+  }
+
+  deleteObject(id: string): Observable<any> {
+    return this.http.delete(this.apiUrl + `/api/object/delete/${id}`);
+  }
+
+  deleteMemberObject(id: string): Observable<any> {
+    return this.http.delete(this.apiUrl + `/api/object/delete-member/${id}`);
   }
 }

@@ -2,12 +2,6 @@ import {
   NzI18nService
 } from "./chunk-FSD4DAVV.js";
 import {
-  NzFormItemFeedbackIconComponent,
-  NzFormNoStatusService,
-  NzFormPatchModule,
-  NzFormStatusService
-} from "./chunk-WCEI55ID.js";
-import {
   NzConnectedOverlayDirective,
   NzNoAnimationDirective,
   NzOverlayModule,
@@ -16,7 +10,7 @@ import {
 } from "./chunk-NXAZUMK5.js";
 import {
   slideMotion
-} from "./chunk-MNBSLOJH.js";
+} from "./chunk-XCYI4HFK.js";
 import {
   NzDestroyService
 } from "./chunk-5K5DN6GW.js";
@@ -28,6 +22,12 @@ import {
   NzOutletModule,
   NzStringTemplateOutletDirective
 } from "./chunk-UZOPNO7X.js";
+import {
+  NzFormItemFeedbackIconComponent,
+  NzFormNoStatusService,
+  NzFormPatchModule,
+  NzFormStatusService
+} from "./chunk-WCEI55ID.js";
 import {
   NzIconDirective,
   NzIconModule
@@ -3789,4 +3789,4 @@ export {
   NzSelectComponent,
   NzSelectModule
 };
-//# sourceMappingURL=chunk-AFJN2EW6.js.map
+//# sourceMappingURL=chunk-ABZJXFM7.js.map

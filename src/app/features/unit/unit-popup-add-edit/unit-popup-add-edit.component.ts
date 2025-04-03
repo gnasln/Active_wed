@@ -188,6 +188,7 @@ export class UnitPopupAddEditComponent implements OnInit {
       value: 3,
     },
   ];
+  
 
   dataMember: any = [];
   visiblePopUpAddMember: boolean = false;
@@ -206,6 +207,9 @@ export class UnitPopupAddEditComponent implements OnInit {
     }));
     this.cdr.detectChanges();
   }
+
+
+  
   handleOpenPopUpAddMember() {
     this.visiblePopUpAddMember = true;
     // this.dataMember = this.form.get('member')?.value;

@@ -1,6 +1,6 @@
 import {
   moveUpMotion
-} from "./chunk-MNBSLOJH.js";
+} from "./chunk-XCYI4HFK.js";
 import {
   NzSingletonService
 } from "./chunk-5K5DN6GW.js";

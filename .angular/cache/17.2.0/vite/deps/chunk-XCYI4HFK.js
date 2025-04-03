@@ -205,8 +205,9 @@ var thumbMotion = trigger("thumbMotion", [
 
 export {
   collapseMotion,
+  helpMotion,
   moveUpMotion,
   slideMotion,
   zoomBigMotion
 };
-//# sourceMappingURL=chunk-MNBSLOJH.js.map
+//# sourceMappingURL=chunk-XCYI4HFK.js.map

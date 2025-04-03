@@ -19,7 +19,6 @@ import { NzIconModule, NzIconService } from 'ng-zorro-antd/icon';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { CommonModule } from '@angular/common';
 import { MatSelectModule } from '@angular/material/select';
 import { TabComponent } from '../../shared/components/tab/tab.component';
@@ -68,6 +67,7 @@ import { unitService } from '../../core/api/unit.service';
 import { PopupAddEditObjectComponent } from '../../features/object/popup-add-edit-object/popup-add-edit-object.component';
 import { ValueUnitService } from '../../core/shared/value-unit.service';
 
+
 @Component({
   selector: 'app-main',
   standalone: true,
@@ -85,7 +85,6 @@ import { ValueUnitService } from '../../core/shared/value-unit.service';
     NzMenuModule,
     NzBreadCrumbModule,
     NzDropDownModule,
-    NzToolTipModule,
     RouterModule,
     MatSelectModule,
     FormsModule,
@@ -110,10 +109,6 @@ export class MainComponent implements OnInit, OnChanges {
   language: string = 'vi';
   userName: string;
   role: string;
-  selectedSubUnitId: string | null = null;
-  selectedUnitId: string | null = null;
-  currentTenantId: string | null = null;
-  objectsByUnit: { [key: string]: any[] } = {};
   _store = inject(Store);
   languageList = [
     {
@@ -164,7 +159,7 @@ export class MainComponent implements OnInit, OnChanges {
     document.addEventListener('keydown', (event: any) => {
       keysPressed[event.keyCode] = true;
       if (keysPressed[16] && keysPressed[90]) {
-        this.handleOpenAddTask();
+        this.handleOpenAddObject();
       }
     });
 
@@ -205,48 +200,39 @@ export class MainComponent implements OnInit, OnChanges {
   userInfor: any = JSON.parse(
     localStorage.getItem('id_token_claims_obj') || '{}',
   );
+  
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['someRelevantProperty']) {
-      this.loadTenants();
-    }
+    this.loadTenants();
   }
   ngOnInit(): void {
     console.log(this.OauthService.hasValidAccessToken());
-    
     this.loadTenants();
     
-    const REFRESH_TOKEN_INTERVAL = 30 * 60 * 1000; // 30 minutes
     setInterval(() => {
-      if (this.OauthService.hasValidAccessToken()) {
-        this.OauthService.refreshToken();
-      }
-    }, REFRESH_TOKEN_INTERVAL);
+      this.OauthService.refreshToken()
+    }, 1800000000)
 
     if (this.getDeviceType() === 'mobile') {
       this.isCollapsed = true;
       this.cdr.detectChanges();
     }
-
     this._store.select('renderDataMenu').subscribe((data) => {
-      if (data) {
-        this.cdr.detectChanges();
-      }
+      this.cdr.detectChanges();
     });
-
-    const userInfo = localStorage.getItem('id_token_claims_obj');
-    if (userInfo) {
-      this.userName = JSON.parse(userInfo)?.name;
-    }
+    const idInterval = setInterval(() => {
+      if (localStorage.getItem('id_token_claims_obj')) {
+        this.userName = JSON.parse(
+          localStorage.getItem('id_token_claims_obj') || '{}',
+        )?.name;
+        clearInterval(idInterval);
+      }
+    }, 300);
 
     MainComponent.getData();
-    
     if (this.OauthService.hasValidIdToken()) {
-      this.OauthService.refreshToken()
-        .then(() => this._store.dispatch(loadUnits()))
-        .catch(error => {
-          console.error('Token refresh failed:', error);
-          this._store.dispatch(loadUnits()); // Still load units even if refresh fails
-        });
+      this.OauthService.refreshToken().then(() => {
+        this._store.dispatch(loadUnits());
+      });
     } else {
       this._store.dispatch(loadUnits());
     }
@@ -285,7 +271,7 @@ export class MainComponent implements OnInit, OnChanges {
       console.error(err);
     });
   }
-  
+
   // Helper method to handle pinned tenant logic
   private handlePinnedTenant(): void {
     const pinnedTenantId = localStorage.getItem('pinnedTenantId');
@@ -326,18 +312,18 @@ export class MainComponent implements OnInit, OnChanges {
     this.visibleListObject = e;
   }
 
-  handleOpenObject(unitId: string, event: Event) {
+  handleOpenObject(unitID: any, event: Event){
     event.stopPropagation();
     event.preventDefault();
-    this.idUnit = unitId;
+    this.idUnit = unitID;
     this.visibleListObject = true;
   }
 
-  handleOpenAddTask(unitId?: string, event?: Event) {
+  handleOpenAddObject(unitId?: string, event?: Event) {
     event?.stopPropagation();
     event?.preventDefault();
     this.idUnit = '';
-    this.visibleList = true;
+    this.visibleListObject = true;
     this.idUnit = unitId;
   }
 
@@ -453,11 +439,6 @@ export class MainComponent implements OnInit, OnChanges {
   handleUnitDeleted(unitId: any): void {
     this.units = this.units.filter((unit: any) => unit.id !== unitId); 
     this.cdr.detectChanges(); 
-  }
-
-  handleTenantDeleted(tenantId: any): void {
-    this.tenants = this.tenants.filter((tenant: any) => tenant.id !== tenantId);
-    this.cdr.detectChanges();
   }
 
   listID = [
@@ -579,18 +560,16 @@ export class MainComponent implements OnInit, OnChanges {
   }
 
   units: any = [];
+  currentTenantId: string | null = null;
   loadUnitbytenant(e: any, event: Event) {
     event.stopPropagation();
     event.preventDefault();
     this.idTenant = e;
-    this.currentTenantId = e;
-    this.selectedUnitId = null; // Reset selected unit when changing tenant
-    this.selectedSubUnitId = null; // Reset selected subunit when changing tenant
-    this.objectsByUnit = {}; // Clear objects when changing tenant
-    console.log("Selected Tenant: ", e);
+    console.log("AA: ", e)
     this.valueUnitService.setTenantId(e);
     this.unitService.getListUnitsByTenant(e).subscribe((units: any) => {
       this.units = units.data;
+      this.currentTenantId = e;
       this.cdr.detectChanges();
     });
   }
@@ -599,31 +578,18 @@ export class MainComponent implements OnInit, OnChanges {
   loadUnitChildren(id: any, event: Event){
     event.stopPropagation();
     event.preventDefault();
-    this.selectedUnitId = id;
-    this.selectedSubUnitId = null; // Reset selected subunit when changing unit
-    this.objectsByUnit = {}; // Clear objects when changing unit
-    console.log("Selected Unit: ", id);
     this.router.navigate(['/unit/othertask', id]);
     this.unitService.getListUnitByParentUnit(id).subscribe(res => {
       this.childrenUnits = res.data;
       this.valueUnitService.setChildrenUnits(res.data);
       this.cdr.detectChanges();
+      console.log("ChildrenUnits: ", this.childrenUnits)
     })
   }
 
   listObjectByUnit(unitId: string, event: Event) {
     event.stopPropagation();
-    this.selectedSubUnitId = unitId;
-    console.log("Selected SubUnit: ", unitId);
     this.valueUnitService.setUnitId(unitId);
-    // Chỉ lấy objects nếu đã chọn đủ tenant và unit
-    if (this.currentTenantId && this.selectedUnitId) {
-      this.unitService.getListObjectsByUnit(unitId).subscribe((res: any) => {
-        this.objectsByUnit[unitId] = res.data;
-        this.objects = res.data;
-        this.cdr.detectChanges();
-      });
-    }
   }
 
   UnitChildren(id: any, event: Event){
@@ -679,20 +645,17 @@ export class MainComponent implements OnInit, OnChanges {
     } 
   }
 
-  openMap3: { [key: string]: boolean } = {};
-  openSubMap3: { [key: string]: boolean } = {};
+  openMap3: { [key: number]: boolean } = {};
+  openSubMap3: { [key: number]: boolean } = {};
 
-  openHandler3(unitId: string, isSubMenu: boolean = false): void {
+  openHandler3(index: number, isSubMenu: boolean = false): void {
     if (isSubMenu) {
-      // Reset all other SubUnits
       for (const key in this.openSubMap3) {
-        if (key !== unitId) {
+        if (key !== index.toString()) {
           this.openSubMap3[key] = false;
         }
       }
-      // Toggle current SubUnit
-      this.openSubMap3[unitId] = !this.openSubMap3[unitId];
-    }
+    } 
   }
 
   handlePinOrganization(tenantId: number | null): void {
@@ -721,73 +684,4 @@ export class MainComponent implements OnInit, OnChanges {
     return this.hiddenTenantIds.has(tenantId);
   }
 
-  objects: any[] = [];
-  showAllObjectsMap: { [key: string]: boolean } = {};
-
-  toggleShowAllObjects(unitId: string, event: Event): void {
-    event.stopPropagation();
-    event.preventDefault();
-    this.showAllObjectsMap[unitId] = !this.showAllObjectsMap[unitId];
-    this.cdr.detectChanges();
-  }
-
-  handleObjectCreated(newObject: any): void {
-    // Cập nhật danh sách objects cho unit hiện tại
-    if (this.selectedSubUnitId) {
-      if (!this.objectsByUnit[this.selectedSubUnitId]) {
-        this.objectsByUnit[this.selectedSubUnitId] = [];
-      }
-      this.objectsByUnit[this.selectedSubUnitId].push(newObject);
-      
-      // Cập nhật danh sách objects chung
-      this.objects = [...this.objectsByUnit[this.selectedSubUnitId]];
-      
-      // Trigger change detection
-      this.cdr.detectChanges();
-    }
-  }
-
-  selectedObject: any = null;
-  selectedTenantName: string = '';
-  selectedUnitName: string = '';
-  selectedSubUnitName: string = '';
-
-  selectObject(object: any, event: Event) {
-    event.stopPropagation();
-    this.selectedObject = object;
-    
-    // Find and set the names for navigation path
-    const currentTenant = this.tenants.find((t: any) => t.id === this.idTenant);
-    if (currentTenant) {
-      this.selectedTenantName = currentTenant.name;
-    }
-
-    const currentUnit = this.units.find((u: any) => u.id === this.idParentUnit);
-    if (currentUnit) {
-      this.selectedUnitName = currentUnit.name;
-    }
-
-    const currentSubUnit = this.childrenUnits.find((su: any) => su.id === this.selectedSubUnitId);
-    if (currentSubUnit) {
-      this.selectedSubUnitName = currentSubUnit.name;
-    }
-
-    this.cdr.detectChanges();
-  }
-
-  // Thêm vào class MainComponent
-  
-  getSelectedTenant(): any {
-    if (this.currentTenantId && this.tenants) {
-      return this.tenants.find((tenant: any) => tenant.id === this.currentTenantId);
-    }
-    return null;
-  }
-  
-  getSelectedUnit(): any {
-    if (this.selectedUnitId && this.units) {
-      return this.units.find((unit: any) => unit.id === this.selectedUnitId);
-    }
-    return null;
-  }
 }

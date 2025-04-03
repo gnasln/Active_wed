@@ -14,3 +14,82 @@ mwlResizable {
     }
   }
 }
+
+.object-list-container {
+  /* Tùy chỉnh thanh cuộn */
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+  /* Đảm bảo không có khoảng trống dư thừa */
+  padding-right: 5px;
+  margin-right: -5px;
+
+  /* Đảm bảo nội dung không bị che khuất */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  /* Tạo khoảng cách cho thanh cuộn */
+  &:after {
+    content: '';
+    display: block;
+    height: 10px; /* Khoảng cách dưới cùng */
+  }
+}
+
+/* Ẩn thanh cuộn mặc định cho các phần tử khác */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  
+  &::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+}
+
+/* Các styles hiện có */
+::ng-deep .ant-btn-primary {
+  background-color: #0eaf8f;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #898989;
+}
+
+::ng-deep .ant-modal-content {
+  border-radius: 20px;
+}
+.icon {
+  height: fit-content;
+}

@@ -1,25 +1,11 @@
 import {
   NzToolTipComponent,
   NzTooltipBaseDirective
-} from "./chunk-XSY6F6W3.js";
+} from "./chunk-K4F2ZNLP.js";
 import {
   NzI18nModule,
   NzI18nPipe
 } from "./chunk-FSD4DAVV.js";
-import {
-  NzConnectedOverlayDirective,
-  NzNoAnimationDirective,
-  NzOverlayModule
-} from "./chunk-NXAZUMK5.js";
-import {
-  zoomBigMotion
-} from "./chunk-MNBSLOJH.js";
-import "./chunk-5K5DN6GW.js";
-import "./chunk-3Z4XHAHP.js";
-import {
-  NzOutletModule,
-  NzStringTemplateOutletDirective
-} from "./chunk-UZOPNO7X.js";
 import {
   NzButtonComponent,
   NzButtonModule
@@ -30,6 +16,20 @@ import {
 import {
   NzWaveDirective
 } from "./chunk-BQJZOM27.js";
+import {
+  NzConnectedOverlayDirective,
+  NzNoAnimationDirective,
+  NzOverlayModule
+} from "./chunk-NXAZUMK5.js";
+import {
+  zoomBigMotion
+} from "./chunk-XCYI4HFK.js";
+import "./chunk-5K5DN6GW.js";
+import "./chunk-3Z4XHAHP.js";
+import {
+  NzOutletModule,
+  NzStringTemplateOutletDirective
+} from "./chunk-UZOPNO7X.js";
 import {
   NzIconDirective,
   NzIconModule

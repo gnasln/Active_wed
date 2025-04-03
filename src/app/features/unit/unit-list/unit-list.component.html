@@ -1,14 +1,13 @@
 <div class="m-2">
-    <div class=" flex gap-4 w-full" id="containerBlock">
-        <div class="w-[40%] overflow-hidden min-h-[500px] flex bg-primaryBG p-3 relative shadow-[2px_0px_7px_0px_rgba(1,87,155,0.30)]"
+    <div class="flex gap-4 w-full h-[calc(100vh)]" id="containerBlock">
+        <div class="w-[40%] overflow-hidden flex bg-primaryBG p-3 relative shadow-[2px_0px_7px_0px_rgba(1,87,155,0.30)]"
             [ngStyle]="style" mwlResizable [enableGhostResize]="true" (resizeEnd)="onResizeEnd($event)">
-            <div class="flex-1">
-                <div class="flex justify-between gap-5">
+            <div class="flex-1 flex flex-col h-full">
+                <div class="flex justify-between gap-5 mb-4">
                     <div class="ml-5 flex items-center text-[20px] font-medium">
-                        <span>TrueConnect
-                        </span>
+                        <span>{{selectedTenantName || 'Tổ chức'}}</span>
                         <span nz-icon nzType="arrowsIcon:antd" class="icon" nzTheme="outline"></span>
-                        <span>Active+</span>
+                        <span>{{selectedUnitName || 'Đơn vị'}}</span>
                     </div>
                     <div class="flex gap-5 items-center">
                         <div class="flex">
@@ -37,16 +36,37 @@
                     </div>
                 </div>
 
-                <div>
-                    <div class="ml-5 flex items-center gap-4">
+                <div class="flex-1 overflow-y-auto">
+                    <div class="ml-5 flex items-center gap-4 mb-4">
                         <span nz-icon nzType="ghostIcon:antd" class="icon text-[24px] cursor-pointer"
                             nzTheme="outline"></span>
                         <span class="text-[24px] font-medium">{{ listObjects[0]?.unitName }}</span>
                     </div>
-                    <div class="flex gap-5 flex-col">
-                        <app-unit-item *ngFor="let object of listObjects" [data]="object.id" [unitName]="object.title"></app-unit-item>
+                    <div class="flex gap-5 flex-col pb-4 pr-2">
+                        <div *ngFor="let object of listObjects" class="relative">
+                            <app-unit-item [data]="object.id" [unitName]="object.title"></app-unit-item>
+                            <div class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+                                <!-- Thay đổi nút edit trong danh sách object -->
+<span nz-icon nzType="edit" nzTheme="outline" 
+class="cursor-pointer text-blue-500"
+(click)="showEditObjectPopup(object)"
+nz-tooltip [nzTooltipTitle]="'Button.edit' | translate">
+</span>
+                                <span nz-icon nzType="delete" nzTheme="outline" 
+                                    class="cursor-pointer text-red-500"
+                                    (click)="$event.stopPropagation();"
+                                    nz-popconfirm
+                                    [nzPopconfirmTitle]="'Bạn có chắc chắn muốn xóa?' | translate"
+                                    (nzOnConfirm)="handleDeleteObject(object.id)"
+                                    nz-tooltip [nzTooltipTitle]="'Button.delete' | translate">
+                                </span>
+                            </div>
+                        </div>
+                        <div *ngIf="hasMoreData" (click)="loadMore()" 
+                            class="cursor-pointer hover:text-[#1990ff] text-center mt-2 py-2">
+                            {{ 'UnitItem.seeMore' | translate }}
+                        </div>
                     </div>
-                    <div *ngIf="hasMoreData" (click)="loadMore()" class="cursor-pointer hover:text-[#1990ff] text-center mt-4">{{ 'UnitItem.seeMore' | translate }}</div>
                 </div>
             </div>
             <div mwlResizeHandle [resizeEdges]="{ right: true }"
@@ -149,3 +169,13 @@
     [isVisible]="visibleList"></app-unit-popup-add-edit>
 <app-popup-add-edit-task *ngIf="visibleAddTask" [idUnit]="idUnit" [idParentTask]="idParentTask" (visibleList)="handleVisibleTaskAdd($event)"
     [isVisible]="visibleAddTask"></app-popup-add-edit-task>
+
+    <app-popup-add-edit-object 
+    *ngIf="editObjectVisible" 
+    [idUnit]="UnitIdService" 
+    [objectId]="editingObjectId"
+    [selectedUnit]="selectedUnitForEdit"
+    [selectedTenant]="selectedTenantForEdit"
+    (visibleListObject)="handleEditObjectClose($event)"
+    [isVisible]="editObjectVisible">
+  </app-popup-add-edit-object>
