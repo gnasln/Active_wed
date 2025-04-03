@@ -19,6 +19,7 @@ import { NzIconModule, NzIconService } from 'ng-zorro-antd/icon';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { CommonModule } from '@angular/common';
 import { MatSelectModule } from '@angular/material/select';
 import { TabComponent } from '../../shared/components/tab/tab.component';
@@ -84,6 +85,7 @@ import { ValueUnitService } from '../../core/shared/value-unit.service';
     NzMenuModule,
     NzBreadCrumbModule,
     NzDropDownModule,
+    NzToolTipModule,
     RouterModule,
     MatSelectModule,
     FormsModule,
@@ -204,37 +206,47 @@ export class MainComponent implements OnInit, OnChanges {
     localStorage.getItem('id_token_claims_obj') || '{}',
   );
   ngOnChanges(changes: SimpleChanges): void {
-    this.loadTenants();
+    if (changes['someRelevantProperty']) {
+      this.loadTenants();
+    }
   }
   ngOnInit(): void {
     console.log(this.OauthService.hasValidAccessToken());
+    
     this.loadTenants();
     
+    const REFRESH_TOKEN_INTERVAL = 30 * 60 * 1000; // 30 minutes
     setInterval(() => {
-      this.OauthService.refreshToken()
-    }, 1800000000)
+      if (this.OauthService.hasValidAccessToken()) {
+        this.OauthService.refreshToken();
+      }
+    }, REFRESH_TOKEN_INTERVAL);
 
     if (this.getDeviceType() === 'mobile') {
       this.isCollapsed = true;
       this.cdr.detectChanges();
     }
+
     this._store.select('renderDataMenu').subscribe((data) => {
-      this.cdr.detectChanges();
-    });
-    const idInterval = setInterval(() => {
-      if (localStorage.getItem('id_token_claims_obj')) {
-        this.userName = JSON.parse(
-          localStorage.getItem('id_token_claims_obj') || '{}',
-        )?.name;
-        clearInterval(idInterval);
+      if (data) {
+        this.cdr.detectChanges();
       }
-    }, 300);
+    });
+
+    const userInfo = localStorage.getItem('id_token_claims_obj');
+    if (userInfo) {
+      this.userName = JSON.parse(userInfo)?.name;
+    }
 
     MainComponent.getData();
+    
     if (this.OauthService.hasValidIdToken()) {
-      this.OauthService.refreshToken().then(() => {
-        this._store.dispatch(loadUnits());
-      });
+      this.OauthService.refreshToken()
+        .then(() => this._store.dispatch(loadUnits()))
+        .catch(error => {
+          console.error('Token refresh failed:', error);
+          this._store.dispatch(loadUnits()); // Still load units even if refresh fails
+        });
     } else {
       this._store.dispatch(loadUnits());
     }

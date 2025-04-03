@@ -19,7 +19,11 @@ import {
   Z,
   ZERO,
   hasModifierKey
-} from "./chunk-IFB2EGA5.js";
+} from "./chunk-I4UEI3OK.js";
+import {
+  coerceElement,
+  coerceNumberProperty
+} from "./chunk-42SIO26Z.js";
 import {
   Platform,
   _getEventTarget,
@@ -27,10 +31,6 @@ import {
   _getShadowRoot,
   normalizePassiveListenerOptions
 } from "./chunk-2CIJKQHJ.js";
-import {
-  coerceElement,
-  coerceNumberProperty
-} from "./chunk-42SIO26Z.js";
 import {
   DOCUMENT
 } from "./chunk-B62JIAQI.js";
@@ -2395,4 +2395,4 @@ export {
   HighContrastModeDetector,
   A11yModule
 };
-//# sourceMappingURL=chunk-M63Q3MAQ.js.map
+//# sourceMappingURL=chunk-AGYCIVW2.js.map

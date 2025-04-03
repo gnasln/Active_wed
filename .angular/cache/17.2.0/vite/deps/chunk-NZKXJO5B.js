@@ -9,22 +9,22 @@ import {
   MatFormField,
   MatFormFieldControl,
   MatFormFieldModule
-} from "./chunk-LKM5ZHZW.js";
+} from "./chunk-JPYXGRPO.js";
 import {
   ErrorStateMatcher,
   MatCommonModule,
   _ErrorStateTracker
-} from "./chunk-4N25UDEH.js";
-import {
-  Platform,
-  getSupportedInputTypes,
-  normalizePassiveListenerOptions
-} from "./chunk-2CIJKQHJ.js";
+} from "./chunk-RQLY2YHB.js";
 import {
   coerceBooleanProperty,
   coerceElement,
   coerceNumberProperty
 } from "./chunk-42SIO26Z.js";
+import {
+  Platform,
+  getSupportedInputTypes,
+  normalizePassiveListenerOptions
+} from "./chunk-2CIJKQHJ.js";
 import {
   DOCUMENT
 } from "./chunk-B62JIAQI.js";
@@ -957,4 +957,4 @@ export {
   MatInput,
   MatInputModule
 };
-//# sourceMappingURL=chunk-OI6QSCYV.js.map
+//# sourceMappingURL=chunk-NZKXJO5B.js.map

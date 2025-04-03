@@ -41,26 +41,36 @@
         <li nz-submenu nzTitle="{{'Menu.organization'| translate}}" nzIcon="organizationIcon:antd" class="menu-item"
           nzOpen nzMenuClassName="test" (contextmenu)="contextMenuOrgnization($event, menuOrganization)">
           <nz-dropdown-menu #menuOrganization="nzDropdownMenu">
-            <ul nz-menu>
-              <li nz-menu-item (click)="handelOpenPopUpChangeOrgnization()">{{'Button.edit'| translate}}</li>
-            </ul>
-            <ul nz-menu>
-              <li nz-menu-item (click)="handelOpenPopUpCreateOrgnization()">{{'Button.add'| translate}}</li>
+            <ul nz-menu class="py-1">
+              <li nz-menu-item (click)="handelOpenPopUpChangeOrgnization()" class="flex items-center gap-2 px-4 py-2">
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+                <span>{{'Button.edit'| translate}}</span>
+              </li>
+              <li nz-menu-item (click)="handelOpenPopUpCreateOrgnization()" class="flex items-center gap-2 px-4 py-2">
+                <span nz-icon nzType="plus" nzTheme="outline"></span>
+                <span>{{'Button.add'| translate}}</span>
+              </li>
             </ul>
           </nz-dropdown-menu>
           <!-- Tenant -->
           <ul [hidden]="isTenantHidden(tenant.id)" (contextmenu)="contextTenantMenu($event, tenant.id)" [(nzOpen)]="openSubMap[index]" (nzOpenChange)="openHandler(index, true)"
             *ngFor="let tenant of tenants; let index = index" (click)="loadUnitbytenant(tenant.id, $event)" [id]='tenant.id' nz-submenu [nzTitle]="tenant.name" nzIcon="groupUserIcon:antd" class="menu-item">
               <nz-dropdown-menu #menuTenant="nzDropdownMenu">
-                <ul nz-menu>
-                  <li nz-menu-item (click)="handelOpenPopUpCreateOrgnization(tenant.id, $event)">Chỉnh sửa</li>
+                <ul nz-menu class="py-1">
+                  <li nz-menu-item (click)="handelOpenPopUpCreateOrgnization(tenant.id, $event)" class="flex items-center gap-2 px-4 py-2">
+                    <span nz-icon nzType="edit" nzTheme="outline"></span>
+                    <span>Chỉnh sửa</span>
+                  </li>
                 </ul>
               </nz-dropdown-menu>
             <!-- Unit -->
             <ul (contextmenu)="contextUnitMenu($event, unit.id)" nz-submenu *ngFor="let unit of units; let index = index" [(nzOpen)]="openSubMap2[index]" (nzOpenChange)="openHandler2(index, true)" (click)="loadUnitChildren(unit.id, $event)" [nzTitle]="unit.name" nzIcon="ghostIcon:antd" class="menu-item">
               <nz-dropdown-menu #menuUnit="nzDropdownMenu">
-                <ul nz-menu>
-                  <li nz-menu-item (click)="handleOpenEditUnit(unit.id, tenant.id, $event)">Chỉnh sửa</li>
+                <ul nz-menu class="py-1">
+                  <li nz-menu-item (click)="handleOpenEditUnit(unit.id, tenant.id, $event)" class="flex items-center gap-2 px-4 py-2">
+                    <span nz-icon nzType="edit" nzTheme="outline"></span>
+                    <span>Chỉnh sửa</span>
+                  </li>
                 </ul>
               </nz-dropdown-menu>
               <!-- SubUnit -->
@@ -70,8 +80,11 @@
                     (nzOpenChange)="openHandler3(chilUnit.id, true)" 
                     (click)="listObjectByUnit(chilUnit.id, $event)">
                   <nz-dropdown-menu #menuUnitChil="nzDropdownMenu">
-                    <ul nz-menu>
-                      <li nz-menu-item (click)="handleOpenEditUnit(chilUnit.id, tenant.id, $event)">Chỉnh sửa</li>
+                    <ul nz-menu class="py-1">
+                      <li nz-menu-item (click)="handleOpenEditUnit(chilUnit.id, tenant.id, $event)" class="flex items-center gap-2 px-4 py-2">
+                        <span nz-icon nzType="edit" nzTheme="outline"></span>
+                        <span>Chỉnh sửa</span>
+                      </li>
                     </ul>
                   </nz-dropdown-menu>
                   <!-- Objects của SubUnit -->
@@ -83,20 +96,29 @@
                   </ul>
                   <!-- Thêm mới Object cho SubUnit -->
                   <div *ngIf="selectedSubUnitId === chilUnit.id" class="!translate-x-[38%] flex flex-col gap-3">
-                    <div class="hover:text-[#1890ff] w-fit">
-                      <span nz-icon nzType="circleIcon:antd" class="icon inline-block" nzTheme="outline"></span>
-                      <span nz-icon nzType="plus-circle" (click)="handleOpenObject(chilUnit.id, $event)"
+                    <div class="hover:text-[#1890ff] ml-4">
+                      <span nz-icon nzType="taskIcon:antd" class="icon inline-block" nzTheme="outline"></span>
+                      <span nz-icon nzType="plus-circle"  (click)="handleOpenObject(unit.id ,$event)"
                         class="icon inline-block !translate-x-[-50%] bg-white rounded-[50%] cursor-pointer"
-                        nzTheme="outline"></span>
+                        nzTheme="outline" nz-tooltip [nzTooltipTitle]="'Thêm đối tượng' | translate"></span>
                     </div>
                   </div>
                 </li>
               </ul>
-              
+              <!-- thêm mới SubUnit cho Unit-->
+              <!-- Thêm mới Unit con -->
+              <div class="!translate-x-[38%] flex flex-col">
+                <div class="hover:text-[#1890ff] w-fit py-2" nz-tooltip [nzTooltipTitle]="'Thêm đơn vị con' | translate">
+                  <span nz-icon nzType="ghostIcon:antd" class="icon inline-block" nzTheme="outline"></span>
+                  <span nz-icon nzType="plus-circle" (click)="handleOpenAddUnit3(tenant.id, unit.id, $event)"
+                    class="icon inline-block !translate-x-[-50%] bg-white rounded-[50%] cursor-pointer"
+                    nzTheme="outline"></span>
+                </div>
+              </div>
             </ul>
             <!-- Thêm mới unit cha -->
-            <div class="!translate-x-[29%] flex flex-col gap-3 mt-3 ">
-              <div class="hover:text-[#1890ff] w-fit">
+            <div class="!translate-x-[29%] flex flex-col gap-3 mt-3">
+              <div class="hover:text-[#1890ff] w-fit" nz-tooltip [nzTooltipTitle]="'Thêm đơn vị' | translate">
                 <span nz-icon nzType="ghostIcon:antd" class="icon inline-block" nzTheme="outline"></span>
                 <span nz-icon nzType="plus-circle" (click)="handleOpenAddUnit(tenant.id, $event)"
                   class="icon inline-block !translate-x-[-50%] bg-white rounded-[50%] cursor-pointer"

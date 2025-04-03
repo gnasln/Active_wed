@@ -19,8 +19,8 @@ import "./chunk-AGLZ46C2.js";
 import {
   Directionality
 } from "./chunk-7LVMILBJ.js";
-import "./chunk-2CIJKQHJ.js";
 import "./chunk-42SIO26Z.js";
+import "./chunk-2CIJKQHJ.js";
 import {
   NgClass,
   NgForOf,

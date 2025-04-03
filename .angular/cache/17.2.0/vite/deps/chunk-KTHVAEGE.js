@@ -1,9 +1,9 @@
 import {
-  NzWaveModule
-} from "./chunk-BQJZOM27.js";
-import {
   NzTransitionPatchModule
 } from "./chunk-2SAO7MCL.js";
+import {
+  NzWaveModule
+} from "./chunk-BQJZOM27.js";
 import {
   NzIconDirective,
   NzIconModule
@@ -420,4 +420,4 @@ export {
   NzButtonGroupComponent,
   NzButtonModule
 };
-//# sourceMappingURL=chunk-7KZOAZNA.js.map
+//# sourceMappingURL=chunk-KTHVAEGE.js.map

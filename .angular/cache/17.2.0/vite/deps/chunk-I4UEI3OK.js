@@ -1,9 +1,9 @@
 import {
-  Platform
-} from "./chunk-2CIJKQHJ.js";
-import {
   coerceArray
 } from "./chunk-42SIO26Z.js";
+import {
+  Platform
+} from "./chunk-2CIJKQHJ.js";
 import {
   CSP_NONCE,
   Inject,
@@ -285,4 +285,4 @@ export {
   MediaMatcher,
   BreakpointObserver
 };
-//# sourceMappingURL=chunk-IFB2EGA5.js.map
+//# sourceMappingURL=chunk-I4UEI3OK.js.map
