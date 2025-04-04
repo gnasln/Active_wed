@@ -27,3 +27,9 @@
 .icon {
   height: fit-content;
 }
+
+.error-border {
+    ::ng-deep .ant-select-selector {
+        border-color: #ff4d4f !important;
+    }
+}

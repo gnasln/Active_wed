@@ -26,6 +26,7 @@ import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NgOtpInputConfig, NgOtpInputModule } from  'ng-otp-input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AccountService } from '../../../core/api/account.service';
+import { PopUpCheckEmailComponent } from '../pop-up-check-email/pop-up-check-email.component';
 
 @Component({
   selector: 'app-pop-up-insert-otp',
@@ -77,7 +78,7 @@ export class PopUpInsertOTPComponent {
 
   handleOk(): void {
     const body = {
-      userName: '',
+      Email: '',
       otp: this.ngOtpInputRef.currentVal
     }
     if(this.ngOtpInputRef.currentVal === null || this.ngOtpInputRef.currentVal.length !== 6){
