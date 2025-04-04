@@ -4,10 +4,11 @@
         <div class="text-center text-primary font-semibold text-[40px]">
             <span>{{'PopUpAddEditUnit.member'|translate}}</span>
         </div>
-        <form [formGroup]="form" class="grid grid-cols-2 gap-2 lg:!w-[450px]  h-fit lg:px-[30px] lg:pb-2 overflow-auto">
+        <form [formGroup]="form" class="grid grid-cols-2 gap-2 lg:!w-[450px] h-[300px] lg:px-[30px] lg:pb-2 overflow-auto">
             <div class="custom-input col-span-2 mb-2">
                 <div class="flex flex-col gap-3">
                     <span>{{'PopUpAddEditUnit.member'|translate}}<span class="text-red-500">*</span></span>
+                    
                     <nz-select
                         formControlName="members"
                         nzShowSearch
@@ -20,15 +21,17 @@
                         [nzFilterOption]="nzFilterOption"
                         (nzOnSearch)="search($event)"
                         style="width: full;"
+                        [class.error-border]="form.get('members')?.errors?.['required'] && (form.get('members')?.dirty || form.get('members')?.touched)"
+                        class="h-[40px]"
                     >
                         <nz-option *ngFor="let option of listOfOption" [nzLabel]="option.text" [nzValue]="option.value"></nz-option>
                     </nz-select>
+                    <div *ngIf="form.get('members')?.errors?.['required'] && (form.get('members')?.dirty || form.get('members')?.touched)" 
+                         class="text-red-600 text-sm mt-0,5 flex items-center">
+                        <i nz-icon nzType="exclamation-circle" nzTheme="fill" class="mr-1"></i>
+                        {{'PopUpAddEditUnit.noEmty'|translate}}
+                    </div>
                 </div>
-                <span
-                    *ngIf="form.get('member')?.errors?.['required']&& (form.get('member')?.dirty || form.get('member')?.touched)"
-                    class="text-[#f44336] text-[12px]">
-                    {{'PopUpAddEditUnit.noEmty'|translate}}
-                </span>
             </div>
         </form>
     </ng-template>

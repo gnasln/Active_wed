@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, SimpleChanges, inject } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -91,6 +91,7 @@ export class TenantPopupAddEditComponent implements OnInit{
     tenantTitle: [null, Validators.required],
     member: [null, Validators.required],
     description: [null],
+    dateOfBirth: [null, [Validators.required, this.validateDateOfBirth.bind(this)]]
   });
 
   userInfor: any = JSON.parse(
@@ -227,5 +228,40 @@ export class TenantPopupAddEditComponent implements OnInit{
         this.message.error('Xóa tenant thất bại');
       }
     );
+  }
+
+  validateDateOfBirth(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null;
+    }
+
+    const selectedDate = new Date(control.value);
+    const today = new Date();
+    const minDate = new Date();
+    minDate.setFullYear(today.getFullYear() - 18);
+
+    if (selectedDate > today) {
+      return { futureDate: true };
+    }
+
+    if (selectedDate > minDate) {
+      return { underAge: true };
+    }
+
+    return null;
+  }
+
+  getDateErrorMessage(): string {
+    const dateControl = this.form.get('dateOfBirth');
+    if (dateControl?.errors?.['futureDate']) {
+      return this.translate.instant('Toast.futureDate');
+    }
+    if (dateControl?.errors?.['underAge']) {
+      return this.translate.instant('Toast.underAge');
+    }
+    if (dateControl?.errors?.['required']) {
+      return this.translate.instant('Toast.requiredDate');
+    }
+    return '';
   }
 }

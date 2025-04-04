@@ -90,6 +90,8 @@ export class UserInforComponent implements OnInit {
     this.formAccountInfor.get('activeDate')?.disable();
     this.viewInfoAccount();
     this.formAccountInfor.get('activeDate')?.disable();
+    this.formAccountInfor.get('statusAccount')?.disable();
+    this.formAccountInfor.get('username')?.disable();
     this.formAccountInfor.disable();
     this.formUserInfor.disable();
   }
@@ -164,6 +166,8 @@ export class UserInforComponent implements OnInit {
     this.formAccountInfor.enable();
     this.formUserInfor.enable();
     this.formAccountInfor.get('activeDate')?.disable();
+    this.formAccountInfor.get('statusAccount')?.disable();
+    this.formAccountInfor.get('username')?.disable();
     this.role = JSON.parse(
       localStorage.getItem('id_token_claims_obj') || '{}',
     )?.role;
