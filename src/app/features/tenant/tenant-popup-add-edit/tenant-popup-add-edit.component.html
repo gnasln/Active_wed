@@ -37,72 +37,27 @@
                         </mat-error>
                     </mat-form-field>
                 </div>
-                <div class="col-span-2 flex flex-col">
-                    <span>{{'PopupAddEditTenant.username'|translate}}</span>
-                    <mat-form-field class="custom-input col-span-2" appearance="outline">
-                        <input matInput [value]="userInfor.name" 
-                            readonly 
-                            disabled
-                            tabindex="-1"
-                            [attr.disabled]="true"
-                            [attr.readonly]="true"
-                            class="cursor-not-allowed bg-gray-100"
-                            style="pointer-events: none; user-select: none; -webkit-user-select: none; background-color: #f3f4f6 !important;"/>
-                    </mat-form-field>
-                </div>
-                <div class="col-span-2 flex flex-col">
-                    <span>{{'PopupAddEditTenant.activationDate'|translate}}</span>
-                    <mat-form-field class="custom-input col-span-2" appearance="outline">
-                        <input matInput [value]="today | date: 'dd/MM/yyyy'" readonly 
-                            class="cursor-not-allowed bg-gray-100"
-                            style="pointer-events: none;"/>
-                    </mat-form-field>
-                </div>
                 <div class="flex flex-col col-span-2 ">
                     <span>{{'PopupAddEditTenant.description'|translate}}</span>
                     <textarea formControlName="description"
                         placeholder="{{'PopUpAddEditUnit.enterDescription'|translate}}"
                         class="p-2 resize-none h-[250px] border outline-none"></textarea>
                 </div>
-                <div class="col-span-2 flex flex-col">
-                    <span>{{'PopUpAddEditUnit.dateOfBirth'|translate}}</span>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-label>{{'PopUpAddEditUnit.dateOfBirth'|translate}}</mat-label>
-                        <input matInput [matDatepicker]="picker" formControlName="dateOfBirth">
-                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                        <mat-datepicker #picker></mat-datepicker>
-                        <mat-error *ngIf="form.get('dateOfBirth')?.errors">
-                            {{getDateErrorMessage()}}
-                        </mat-error>
-                    </mat-form-field>
-                </div>
             </form>
-            <!-- <div class="flex flex-col items-center justify-center gap-y-4">
-                <span class="text-primary underline cursor-pointer hover:opacity-85"
-                    >{{'PopUpAddEditUnit.listUnitTask'|translate}}
-                </span>
-            </div> -->
         </div>
     </ng-template>
     <ng-template #modalFooter>
         <div class="flex justify-center">
             <button *ngIf="!idTenant" nz-button nzType="primary"
-                class="!bg-primary  border-none  rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
-                (click)="handleOk()" [nzLoading]="isConfirmLoading">{{'Button.add'| translate }}</button>
+                class="!bg-primary border-none rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleOk()" [nzLoading]="isConfirmLoading" [disabled]="isConfirmLoading">
+                {{'Button.add'| translate }}
+            </button>
 
             <button *ngIf="idTenant" nz-button nzType="primary"
-                class="!bg-primary  border-none  rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
-                (click)="handleOk()" [nzLoading]="isConfirmLoading">{{'Button.save'| translate }}</button>
-            <button *ngIf="idTenant && isAdmin" nz-button
-                class="!bg-red-600 border-none rounded-lg hover:opacity-60 text-white hover:text-black" 
-                nz-popconfirm
-                nzPopconfirmTitle="{{'Toast.confirmDelete'|translate}}"
-                nzPopconfirmPlacement="top" 
-                [nzLoading]="isConfirmLoading" 
-                nzCancelText="{{'Button.cancel'|translate}}"
-                nzOkText="{{'Button.confirm'|translate}}"
-                (nzOnConfirm)="handleDelete()">
-                {{'Button.delete'| translate }}
+                class="!bg-primary border-none rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleOk()" [nzLoading]="isConfirmLoading" [disabled]="isConfirmLoading">
+                {{'Button.save'| translate }}
             </button>
         </div>
     </ng-template>

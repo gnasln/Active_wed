@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, SimpleChanges, inject } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -19,7 +19,6 @@ import { Store } from '@ngrx/store';
 import { loadTenant } from '../../../store/Tenant.action';
 import { PopupAddMemberComponent } from './popup-add-member/popup-add-member.component';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { AuthService } from '../../../core/api/auth.service';
 
 @Component({
   selector: 'app-tenant-popup-add-edit',
@@ -52,15 +51,12 @@ export class TenantPopupAddEditComponent implements OnInit{
   @Output() visiblePopUpCreateOrgnization = new EventEmitter<boolean>();
   @Output() tenantCreated = new EventEmitter<any>(); 
   @Output() tenantUpdated = new EventEmitter<any>(); 
-  @Output() tenantDeleted = new EventEmitter<any>();
-
 
   listMember: any = [];
   listMemberName: any = [];
   isConfirmLoading = false;
   _store = inject(Store);
   today: any = '';
-  public isAdmin: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -69,8 +65,6 @@ export class TenantPopupAddEditComponent implements OnInit{
     private translate: TranslateService,
     private tenantService: TenantService,
     private message: NzMessageService,
-    public authService: AuthService,
-    
   ) {
     this.today = new Date();
   }
@@ -78,20 +72,12 @@ export class TenantPopupAddEditComponent implements OnInit{
     if (this.idTenant) {
       this.getDetailTenant();
     }
-
-    // Kiểm tra role
-  this.authService.getUserInfo().subscribe(userInfo => {
-    if (userInfo && userInfo.role) {
-      this.isAdmin = userInfo.role.includes('Administrator');
-    }
-  });
   }
 
   public form: FormGroup = this.fb.group({
     tenantTitle: [null, Validators.required],
     member: [null, Validators.required],
     description: [null],
-    dateOfBirth: [null, [Validators.required, this.validateDateOfBirth.bind(this)]]
   });
 
   userInfor: any = JSON.parse(
@@ -101,18 +87,35 @@ export class TenantPopupAddEditComponent implements OnInit{
   dataMember: any = [];
   visiblePopUpAddMember: boolean = false;
   handleDataPopUpAddMember(e: any) {
+    if (!e || !e.members || !e.membersName) {
+      console.error('Invalid member data received');
+      return;
+    }
+
     this.visiblePopUpAddMember = e.isVisible;
+    
+    // Ensure we have matching arrays
+    const members = e.members || [];
+    const memberNames = e.membersName || [];
+    
+    if (members.length !== memberNames.length) {
+      console.error('Mismatch between members and member names');
+      return;
+    }
+
     this.form.patchValue({
-      member: e.members.map((member: any) => ({
-        memberId: member.userId,
-        memberName: member.userName,
+      member: members.map((memberId: any, index: number) => ({
+        memberId: memberId,
+        memberName: memberNames[index]
       })),
     });
-    this.listMemberName = e.membersName;
-    this.listMember = e.members.map((member: any) => ({
-      member,
+
+    this.listMemberName = memberNames;
+    this.listMember = members.map((memberId: any) => ({
+      member: memberId,
       img: '../../../../assets/img/avatar.png',
     }));
+    
     this.cdr.detectChanges();
   }
   handleOpenPopUpAddMember() {
@@ -151,117 +154,57 @@ export class TenantPopupAddEditComponent implements OnInit{
       Object.values(this.form.controls).forEach(control => {
         if (control.invalid) {
           control.markAsTouched();
+          control.updateValueAndValidity();
         }
       });
       this.message.error(this.translate.instant('Toast.checkRequiredFields'));
       return;
     }
 
+    this.isConfirmLoading = true;
     const body: createTenantModel = {
       name: this.form.get('tenantTitle')?.value,
       description: this.form.get('description')?.value,
       memberIds: this.listMember.map((member: any) => member.member),
       memberNames: this.listMemberName
     };
-
     if (this.idTenant) {
       body['id'] = this.idTenant;
       body['owner'] = this.userInfor.sub;
       body['ownerName'] = this.userInfor.name;
     }
-
-    // Kiểm tra và log dữ liệu trước khi gửi request
-    console.log('Request body:', body);
-
     if (this.idTenant) {
-      this.isConfirmLoading = true;
-      this.tenantService.updateTenant(body).subscribe(
-        (data) => {
-          console.log('Update response:', data);
+      this.tenantService.updateTenant(body).subscribe({
+        next: (data) => {
           this.tenantUpdated.emit(data.data);
-          this.isConfirmLoading = false;
           this.visiblePopUpCreateOrgnization.emit(false);
-          this.message.success(this.translate.instant('Toast.updateSuccess'));
-        }, 
-        (error) => {
-          console.error('Update error:', error);
+          this.message.success('Cập nhật thành công!');
+        },
+        error: () => {
+          this.message.error('Cập nhật thất bại!');
+        },
+        complete: () => {
           this.isConfirmLoading = false;
-          this.message.error(this.translate.instant('Toast.Error'));
         }
-      );
+      });
     } else {
-      this.isConfirmLoading = true;
-      this.tenantService.createTenant(body).subscribe(
-        (data) => {
+      this.tenantService.createTenant(body).subscribe({
+        next: (data) => {
           this.tenantCreated.emit(data.data); 
-          this.isConfirmLoading = false;
           this.visiblePopUpCreateOrgnization.emit(false);
-          this.message.success(this.translate.instant('Toast.createSuccess'));
-        }, 
-        (error) => {
-          console.error('Create error:', error);
+          this.message.success('Tạo mới  thành công!');
+        },
+        error: () => {
+          this.message.error('Tạo mới thất bại!');
+        },
+        complete: () => {
           this.isConfirmLoading = false;
-          this.message.error(this.translate.instant('Toast.Error'));
         }
-      );
+      });
     }
   }
 
   handleCancel(): void {
     this.visiblePopUpCreateOrgnization.emit(false);
-  }
-
-  handleDelete(): void {
-    this.isConfirmLoading = true;
-    
-    // Không cần kiểm tra role ở đây nữa vì đã ẩn nút xóa với người dùng không phải admin
-    this.tenantService.deleteTenant(this.idTenant).subscribe(
-      (response) => {
-        this.isConfirmLoading = false;
-        this.tenantDeleted.emit(this.idTenant);
-        this.visiblePopUpCreateOrgnization.emit(false);
-        this.message.success('Xóa tenant thành công');
-      },
-      (error) => {
-        this.isConfirmLoading = false;
-        console.error('Error deleting tenant:', error);
-        this.message.error('Xóa tenant thất bại');
-      }
-    );
-  }
-
-  validateDateOfBirth(control: AbstractControl): ValidationErrors | null {
-    if (!control.value) {
-      return null;
-    }
-
-    const selectedDate = new Date(control.value);
-    const today = new Date();
-    const minDate = new Date();
-    minDate.setFullYear(today.getFullYear() - 18);
-
-    if (selectedDate > today) {
-      return { futureDate: true };
-    }
-
-    if (selectedDate > minDate) {
-      return { underAge: true };
-    }
-
-    return null;
-  }
-
-  getDateErrorMessage(): string {
-    const dateControl = this.form.get('dateOfBirth');
-    if (dateControl?.errors?.['futureDate']) {
-      return this.translate.instant('Toast.futureDate');
-    }
-    if (dateControl?.errors?.['underAge']) {
-      return this.translate.instant('Toast.underAge');
-    }
-    if (dateControl?.errors?.['required']) {
-      return this.translate.instant('Toast.requiredDate');
-    }
-    return '';
   }
 }

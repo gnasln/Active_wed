@@ -50,7 +50,12 @@ export class PopupAddMemberComponent implements OnInit{
       const option = this.fullListOfOption.find(opt => opt.value === value);
       return option ? option.text : null;
     }).filter((name: any) => name !== null);
-    console.log("selectedNames: ", selectedNames)
+
+    // Ensure we have the same number of members and names
+    if (selectedMembers.length !== selectedNames.length) {
+      console.error('Mismatch between members and names');
+      return;
+    }
 
     this.data.emit({
       isVisible: false,
@@ -60,15 +65,17 @@ export class PopupAddMemberComponent implements OnInit{
   }
   size: NzSelectSizeType = 'default';
   handleCancel(): void {
-    if (this.dataMember) {
+    if (this.dataMember && this.dataMember.length > 0) {
       this.data.emit({
         isVisible: false,
-        members: [...this.dataMember],
+        members: this.dataMember.map((member: any) => member.userId),
+        membersName: this.dataMember.map((member: any) => member.userName)
       });
     } else {
       this.data.emit({
         isVisible: false,
         members: [],
+        membersName: []
       });
     }
   }
@@ -100,28 +107,6 @@ export class PopupAddMemberComponent implements OnInit{
       });
     });
   }
-  // ngOnInit(): void {
-  //   if (this.type === 'task') {
-  //     this.modeSelect = 'default';
-  //   } else if (this.type === 'unit') {
-  //     this.modeSelect = 'multiple';
-  //   }
-  //   const idUnit = this.unitID?.replaceAll('-', '');
-  //   if (!isNaN(Number(idUnit)) || !this.unitID) {
-  //     // this.getMembers();
-  //   } else {
-  //     this.getMembersUnit();
-  //   }
-
-  //   if (this.dataMember && this.dataMember.length > 0) {
-  //     console.log("this.DataMember: ", this.dataMember)
-  //     this.form.patchValue({
-  //       members: this.dataMember.map((member: any) => member.userId)
-  //     });
-  //     this.selectedValue = this.dataMember.map((member: any) => member.userId);
-  //     this.cdr.detectChanges();
-  //   }
-  // }
 
   ngOnInit(): void {
     if (this.type === 'task') {
