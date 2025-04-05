@@ -165,7 +165,7 @@ export class UnitPopupAddEditComponent implements OnInit {
         console.log("Vào Unit cha")
       }
       this.visibleList.emit(false);
-      this.message.success('Create Unit success!');
+      this.message.success('Tạo đơn vị thành công!');
       this.cdr.detectChanges();
     });
   }
