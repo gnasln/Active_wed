@@ -1,6 +1,7 @@
 {
   "Menu": {
     "unit": "Đơn vị",
+    "subUnit": "Đơn vị con",
     "task": "Công việc",
     "info": "Thông tin kênh",
     "name": "Tên",
@@ -35,6 +36,18 @@
     "noEmty": "Không được bỏ trống",
     "enterDescription": "Nhập mô tả",
     "listUnitTask": "Danh sách đơn vị con"
+  },
+  "PopUpAddEditSubUnit": {
+    "subUnitName": "Tên đơn vị con",
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc",
+    "status": "Trạng thái",
+    "manager": "Quản lý",
+    "member": "Thành viên",
+    "description": "Mô tả",
+    "noEmty": "Không được bỏ trống",
+    "enterDescription": "Nhập mô tả",
+    "listSubUnitTask": "Danh sách đơn vị con"
   },
   "Button": {
     "save": "Lưu",

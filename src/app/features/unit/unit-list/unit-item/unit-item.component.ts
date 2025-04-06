@@ -21,6 +21,7 @@ import { PopupAddEditKeyResultComponent } from '../../../key-result/popup-add-ed
 import { ObjectService } from '../../../../core/api/object.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { KeyResultService } from '../../../../core/api/key-result.service';
+import { PriorityLevel } from '../../../../core/enums/todo';
 
 @Component({
   selector: 'app-unit-item',
@@ -47,6 +48,9 @@ export class UnitItemComponent implements AfterViewInit, OnInit {
   @Output() edit = new EventEmitter<any>();
   @Input() data: any;
   @Input() unitName: string;
+  @Input() dueDate: string;
+  @Input() priority: number;
+  priorityLevelEnum: any = PriorityLevel;
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -65,16 +69,13 @@ export class UnitItemComponent implements AfterViewInit, OnInit {
   loadKeyResultByObject() {
     const body = {
       objectId: this.data,
-      pageSize: this.pageSize,
+      pageSize: 100,
       pageNumber: 1
     }
     this.keyResultService.listKeyResultByObject(body).subscribe(res => {
       if (res.data){
         this.listKeyResults = res.data.items;
         this.cdr.detectChanges();
-        if (res.data.items.length < this.pageSize ) {
-          this.hasMoreData = false;
-        }
       }
     }, (err) => {
       this.message.error(err);
@@ -152,7 +153,7 @@ export class UnitItemComponent implements AfterViewInit, OnInit {
   }
 
   loadMore() {
-    this.pageSize++;
+    this.pageSize+=3;
     this.loadKeyResultByObject();
   }
 }

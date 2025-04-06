@@ -8,10 +8,10 @@
 
     <ng-template #modalContent>
         <div class="text-center text-primary font-semibold text-[40px]">
-            <span>{{'Menu.unit'|translate}}</span>
+            <span>{{'Menu.subUnit'|translate}}</span>
         </div>
         <div class="px-[30px]">
-            <span class="text-[#1C274C] text-[20px] font-medium">TrueConnect</span>
+            <span class="text-[#1C274C] text-[20px] font-medium">Tổ chức</span>
 
             <div class="my-4">
                 <div class="flex">
@@ -31,13 +31,13 @@
             </div>
             <form [formGroup]="form" class="grid grid-cols-2 w-full  h-fit lg:pb-2 overflow-auto">
                 <div class="col-span-2 flex flex-col">
-                    <span>{{'PopUpAddEditUnit.unitName'|translate}}<span class="text-red-500">*</span></span>
+                    <span>{{'PopUpAddEditSubUnit.subUnitName'|translate}}<span class="text-red-500">*</span></span>
                     <mat-form-field class="custom-input col-span-2" appearance="outline">
                         <input matInput formControlName="unitTitle" />
                         <mat-error
                             *ngIf="form.get('unitTitle')?.errors?.['required']&& (form.get('unitTitle')?.dirty || form.get('unitTitle')?.touched)"
                             class="text-red-600">
-                            {{'PopUpAddEditUnit.noEmty'|translate}}
+                            {{'PopUpAddEditSubUnit.noEmty'|translate}}
                         </mat-error>
                     </mat-form-field>
                 </div>
@@ -56,15 +56,15 @@
                     </span>
                 </div> -->
                 <div class="flex flex-col col-span-2 ">
-                    <span>{{'PopUpAddEditUnit.description'|translate}}</span>
+                    <span>{{'PopUpAddEditSubUnit.description'|translate}}</span>
                     <textarea formControlName="description"
-                        placeholder="{{'PopUpAddEditUnit.enterDescription'|translate}}"
+                        placeholder="{{'PopUpAddEditSubUnit.enterDescription'|translate}}"
                         class="p-2 resize-none h-[250px] border outline-none"></textarea>
                 </div>
             </form>
             <div class="flex flex-col items-center justify-center gap-y-4">
                 <span class="text-primary underline cursor-pointer hover:opacity-85"
-                (click)="handleOpenPopUpSubTaskList(idTaskDetail)">{{'PopUpAddEditUnit.listUnitTask'|translate}}
+                (click)="handleOpenPopUpSubTaskList(idTaskDetail)">{{'PopUpAddEditSubUnit.listSubUnitTask'|translate}}
                 </span>
             </div>
         </div>

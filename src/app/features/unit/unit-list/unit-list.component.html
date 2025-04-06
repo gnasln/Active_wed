@@ -44,14 +44,13 @@
                     </div>
                     <div class="flex gap-5 flex-col pb-4 pr-2">
                         <div *ngFor="let object of listObjects" class="relative">
-                            <app-unit-item [data]="object.id" [unitName]="object.title"></app-unit-item>
+                            <app-unit-item [data]="object.id" [unitName]="object.title" [dueDate]="object.dueDate" [priority]="object.priority"></app-unit-item>
                             <div class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
-                                <!-- Thay đổi nút edit trong danh sách object -->
-<span nz-icon nzType="edit" nzTheme="outline" 
-class="cursor-pointer text-blue-500"
-(click)="showEditObjectPopup(object)"
-nz-tooltip [nzTooltipTitle]="'Button.edit' | translate">
-</span>
+                                <span nz-icon nzType="edit" nzTheme="outline" 
+                                class="cursor-pointer text-blue-500"
+                                (click)="showEditObjectPopup(object)"
+                                nz-tooltip [nzTooltipTitle]="'Button.edit' | translate">
+                                </span>
                                 <span nz-icon nzType="delete" nzTheme="outline" 
                                     class="cursor-pointer text-red-500"
                                     (click)="$event.stopPropagation();"
@@ -61,10 +60,6 @@ nz-tooltip [nzTooltipTitle]="'Button.edit' | translate">
                                     nz-tooltip [nzTooltipTitle]="'Button.delete' | translate">
                                 </span>
                             </div>
-                        </div>
-                        <div *ngIf="hasMoreData" (click)="loadMore()" 
-                            class="cursor-pointer hover:text-[#1990ff] text-center mt-2 py-2">
-                            {{ 'UnitItem.seeMore' | translate }}
                         </div>
                     </div>
                 </div>

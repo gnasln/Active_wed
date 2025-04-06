@@ -1,8 +1,8 @@
 export const PriorityLevel = {
   None: 0,
-  Low: 1,
+  Low: 3,
   Medium: 2,
-  High: 3,
+  High: 1,
 };
 export const TodoStatus = {
   New: 0,
