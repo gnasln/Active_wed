@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+                                                                                                                                  import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -43,6 +43,7 @@ export class UnitItemComponent implements AfterViewInit, OnInit {
   public hasMoreData: boolean = true;
   public listKeyResults: any = [];
   public idObject: String;
+  public selectedKeyResultId: string | null = null;
   route: ActivatedRoute = inject(ActivatedRoute);
   UnitId = this.route.snapshot.params['id'];
   @Output() edit = new EventEmitter<any>();
@@ -86,6 +87,50 @@ export class UnitItemComponent implements AfterViewInit, OnInit {
     this.listKeyResults.push(newKeyResult);
     console.log("listKeyResults được push: ", this.listKeyResults)
     this.cdr.detectChanges();
+  }
+  
+  handleKeyResultUpdated(updatedKeyResult: any) {
+    const index = this.listKeyResults.findIndex((item: any) => item.id === updatedKeyResult.id);
+    if (index !== -1) {
+      this.listKeyResults[index] = updatedKeyResult;
+      this.message.success('Cập nhật kết quả chính thành công!');
+    }
+    this.selectedKeyResultId = null;
+    this.cdr.detectChanges();
+  }
+  
+  handleKeyResultDeleted(keyResultId: string) {
+    console.log("Handling key result deleted, ID:", keyResultId);
+    
+    // Tìm vị trí của key result trong danh sách
+    const index = this.listKeyResults.findIndex((item: any) => item.id === keyResultId);
+    console.log("Found item at index:", index);
+    
+    if (index !== -1) {
+      // Xóa key result khỏi danh sách
+      this.listKeyResults.splice(index, 1);
+      console.log("Updated list after deletion:", this.listKeyResults);
+      
+      // Thông báo xóa thành công
+      this.message.success('Xóa kết quả chính thành công!');
+      
+      // Reset selectedKeyResultId
+      this.selectedKeyResultId = null;
+      
+      // Cập nhật giao diện
+      this.cdr.detectChanges();
+    } else {
+      console.warn("Key result not found in list:", keyResultId);
+    }
+  }
+  
+  handleEditKeyResult(data: any) {
+    console.log("Edit key result - data received:", data);
+    console.log("Key Result ID:", data.keyResultId);
+    console.log("Object ID:", data.objectId);
+    this.selectedKeyResultId = data.keyResultId;
+    this.idObject = data.objectId;
+    this.visiblePopUpAddEditKeyResult = true;
   }
 
   listMember: any = [
@@ -144,6 +189,7 @@ export class UnitItemComponent implements AfterViewInit, OnInit {
 
   handleOpenPopUpAddEditKeyResult(idObject: any) {
     this.idObject = idObject;
+    this.selectedKeyResultId = null;
     console.log("Thôi nào: ", this.idObject)
     this.visiblePopUpAddEditKeyResult = true;
   }

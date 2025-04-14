@@ -341,7 +341,7 @@ handleEditObjectClose(event: boolean) {
   listObjectByUnit(){
     const body = {
       unitId: this.UnitIdService,
-      pageSize: 100,
+      pageSize: this.pageSize,
       pageNumber: 1
     }
     this.objectService.listObjectByUnit(body).subscribe(res => {
@@ -349,6 +349,9 @@ handleEditObjectClose(event: boolean) {
         console.log("Objects data:", res.data.items);
         this.listObjects = res.data.items;
         this.cdr.detectChanges();
+        if (res.data.items.length < this.pageSize ) {
+          this.hasMoreData = false;
+        }
       }
     }, (err) => {
       this.message.error(err);

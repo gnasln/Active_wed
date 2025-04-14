@@ -27,4 +27,12 @@ export class KeyResultService {
   getMemberKeyResult(id: string): Observable<any> {
     return this.http.get(this.apiUrl + `/api/keyresult/get-member-from-key-result/${id}`);
   }
+
+  getKeyResultDetail(id: string): Observable<any> {
+    return this.http.get(this.apiUrl + `/api/keyresult/keyResult-detail/${id}`);
+  }
+
+  deleteKeyResult(id: string): Observable<any> {
+    return this.http.delete(this.apiUrl + `/api/keyresult/delete/${id}`);
+  }
 }

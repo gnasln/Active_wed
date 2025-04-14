@@ -1,8 +1,12 @@
 <div class="w-[85%] mx-auto overflow-hidden">
     <div class="grid grid-cols-[fit-content(20px)_1fr] grid-rows-3 item-center gap-2">
         <span nz-icon nzType="keySquareIcon:antd" class="self-center col-span-1 icon w-fit text-[20px] cursor-pointer"
-            nzTheme="outline"></span>
-        <span class="col-span-1 text-[20px] font-medium w-fit self-center">{{keyResultName.title}}</span>
+            nzTheme="outline" (click)="editKeyResult($event)"></span>
+        <div class="col-span-1 flex items-center">
+            <span class="text-[20px] font-medium w-fit self-center">{{keyResultName.title}}</span>
+            <span nz-icon nzType="edit" class="ml-2 cursor-pointer text-primary" 
+                (click)="editKeyResult($event)" nzTheme="outline"></span>
+        </div>
         <div class="col-start-2 col-end-3">
             <nz-progress [nzPercent]="30"></nz-progress>
         </div>

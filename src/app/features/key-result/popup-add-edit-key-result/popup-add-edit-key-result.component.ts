@@ -5,9 +5,11 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
   Output,
   QueryList,
+  SimpleChanges,
   ViewChildren,
 } from '@angular/core';
 import {
@@ -31,6 +33,7 @@ import { PopupAddMemberComponent } from '../../unit/unit-popup-add-edit/popup-ad
 import { KeyResultService } from '../../../core/api/key-result.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import moment from 'moment';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 
 @Component({
   selector: 'app-popup-add-edit-key-result',
@@ -51,21 +54,27 @@ import moment from 'moment';
     TranslateModule,
     NzButtonModule,
     PopupAddMemberComponent,
+    NzPopconfirmModule,
   ],
   templateUrl: './popup-add-edit-key-result.component.html',
   styleUrl: './popup-add-edit-key-result.component.scss',
 })
-export class PopupAddEditKeyResultComponent implements OnInit{
+export class PopupAddEditKeyResultComponent implements OnInit, OnChanges{
   @Input() isVisible: boolean = false;
   @Input() idUnit: any;
   @Input() objectId: any;
+  @Input() keyResultId: any = null;
   @Output() visiblePopUpAddEditKeyResult = new EventEmitter<boolean>();
   @Output() keyResultCreated = new EventEmitter<any>();
+  @Output() keyResultUpdated = new EventEmitter<any>();
+  @Output() keyResultDeleted = new EventEmitter<any>();
   isConfirmLoading = false;
+  isDeleteLoading = false;
   priorityLevelHigh: string;
   priorityLevelMedium: string;
   priorityLevelLow: string;
   priorityLevelList: any = [];
+  public form: FormGroup;
 
   constructor(
     private fb: FormBuilder,
@@ -75,10 +84,41 @@ export class PopupAddEditKeyResultComponent implements OnInit{
     private keyResultService: KeyResultService,
     private message: NzMessageService,
   ) {}
+  
+  // Phát hiện khi keyResultId thay đổi để load dữ liệu
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log("ngOnChanges detected:", changes);
+    
+    // Nếu keyResultId thay đổi và có giá trị
+    if (changes['keyResultId'] && changes['keyResultId'].currentValue && this.form) {
+      console.log("keyResultId changed to:", changes['keyResultId'].currentValue);
+      this.loadKeyResultDetails();
+    }
+    
+    // Nếu isVisible thay đổi sang true, đảm bảo form được reset đúng cách
+    if (changes['isVisible'] && changes['isVisible'].currentValue === true && !this.keyResultId) {
+      console.log("Popup became visible, resetting form");
+      this.form?.reset({
+        scale: null,
+        description: '',
+        member: null,
+        priorityLevel: null,
+        deadline: null,
+      });
+    }
+  }
 
   handleOk(): void {
+    if (this.form.invalid) {
+      Object.values(this.form.controls).forEach(control => {
+        if (control.invalid) {
+          control.markAsDirty();
+          control.updateValueAndValidity({ onlySelf: true });
+        }
+      });
+      return;
+    }
     this.createKeyResult();
-    this.visiblePopUpAddEditKeyResult.emit(false);
   }
 
   createKeyResult() {
@@ -88,20 +128,26 @@ export class PopupAddEditKeyResultComponent implements OnInit{
       createdDate: moment().local().format('YYYY-MM-DD'),
       dueDate: this.form.get('deadline')?.value,
       objectTBId: this.objectId,
-      memberIds: this.listMember.map((member: any) => member.member),
+      memberIds: this.listMember.length ? this.listMember.map((member: any) => member.member) : [],
       memberNames: this.listMemberName
     }
-    this.keyResultService.createKeyResult(body).subscribe(res => {
-      if(res.data) {
-        this.keyResultCreated.emit(res.data);
-        this.visiblePopUpAddEditKeyResult.emit(false);
-        this.message.success(this.translate.instant('Toast.createSuccess'));
+    this.isConfirmLoading = true;
+    this.keyResultService.createKeyResult(body).subscribe({
+      next: (res: any) => {
+        if(res.data) {
+          this.keyResultCreated.emit(res.data);
+          this.visiblePopUpAddEditKeyResult.emit(false);
+          this.message.success(this.translate.instant('Toast.createSuccess'));
+        }
+      },
+      error: (err: any) => {
+        this.message.error(err);
+      },
+      complete: () => {
+        this.isConfirmLoading = false;
         this.cdr.detectChanges();
       }
-    }, (err) => {
-      this.message.error(err);
-    })
-
+    });
   }
 
   size: NzSelectSizeType = 'default';
@@ -110,6 +156,11 @@ export class PopupAddEditKeyResultComponent implements OnInit{
   }
 
   ngOnInit(): void {
+    console.log("PopupAddEditKeyResult initialized with keyResultId:", this.keyResultId);
+    console.log("ObjectId:", this.objectId);
+    
+    this.initForm();
+
     this.translate
       .get('PopUpAddEditObject.priorityHigh')
       .subscribe((value) => (this.priorityLevelHigh = value));
@@ -145,15 +196,142 @@ export class PopupAddEditKeyResultComponent implements OnInit{
         value: 3,
       },
     ];
+
+    // Load key result data if in edit mode
+    if (this.keyResultId) {
+      console.log("About to load key result details for ID:", this.keyResultId);
+      this.loadKeyResultDetails();
+    } else {
+      console.log("Not loading key result details, no ID provided");
+    }
+    
     this.cdr.detectChanges();
   }
 
-  public form: FormGroup = this.fb.group({
-    scale: [null, Validators.required],
-    member: [null, Validators.required],
-    priorityLevel: [null, Validators.required],
-    deadline: [null, Validators.required],
-  });
+  initForm() {
+    this.form = this.fb.group({
+      scale: [null, Validators.required],
+      description: [''],
+      member: [null],
+      priorityLevel: [null],
+      deadline: [null, Validators.required],
+    });
+  }
+
+  // Load key result details for editing
+  loadKeyResultDetails() {
+    console.log("Loading key result details for ID:", this.keyResultId);
+    console.log("Object ID:", this.objectId);
+    
+    this.keyResultService.getKeyResultDetail(this.keyResultId).subscribe({
+      next: (res: any) => {
+        console.log("Response from getKeyResultDetail:", res);
+        if (res.data) {
+          const keyResultData = res.data;
+          console.log("Key Result Data:", keyResultData);
+          
+          this.form.patchValue({
+            scale: keyResultData.title,
+            description: keyResultData.description,
+            deadline: keyResultData.dueDate ? new Date(keyResultData.dueDate) : null
+          });
+          
+          // Update member list if available
+          if (keyResultData.memberIds && keyResultData.memberIds.length > 0) {
+            this.listMember = keyResultData.memberIds.map((memberId: any) => ({
+              member: memberId,
+              img: '../../../../assets/img/avatar.png',
+            }));
+            this.listMemberName = keyResultData.memberNames || [];
+          }
+          
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err: any) => {
+        console.error("Error loading key result details:", err);
+        this.message.error('Không thể tải thông tin kết quả chính');
+      }
+    });
+  }
+
+  // Edit key result implementation
+  handleEditKeyResult(): void {
+    if (this.form.invalid) {
+      Object.values(this.form.controls).forEach(control => {
+        if (control.invalid) {
+          control.markAsDirty();
+          control.updateValueAndValidity({ onlySelf: true });
+        }
+      });
+      return;
+    }
+    
+    if (!this.keyResultId) {
+      this.message.error('Không thể xác định kết quả chính cần sửa');
+      return;
+    }
+    
+    const body: any = {
+      id: this.keyResultId,
+      title: this.form.get('scale')?.value,
+      description: this.form.get('description')?.value,
+      objectTBId: this.objectId,
+      dueDate: this.form.get('deadline')?.value,
+      memberIds: this.listMember.length ? this.listMember.map((member: any) => member.member) : [],
+      memberNames: this.listMemberName
+    };
+
+    this.isConfirmLoading = true;
+    
+    this.keyResultService.updateKeyResult(body).subscribe({
+      next: (res: any) => {
+        if (res.data) {
+          this.message.success('Cập nhật kết quả chính thành công!');
+          this.keyResultUpdated.emit(res.data);
+          this.visiblePopUpAddEditKeyResult.emit(false);
+        }
+      },
+      error: (err: any) => {
+        this.message.error(err?.error?.message || 'Có lỗi xảy ra khi cập nhật kết quả chính');
+      },
+      complete: () => {
+        this.isConfirmLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // Delete key result implementation
+  handleDelete(): void {
+    if (!this.keyResultId) {
+      this.message.error('Không thể xác định kết quả chính cần xóa');
+      return;
+    }
+
+    this.isDeleteLoading = true;
+    this.keyResultService.deleteKeyResult(this.keyResultId).subscribe({
+      next: (res: any) => {
+        // Hiển thị thông báo thành công và đóng modal
+        this.message.success('Xóa kết quả chính thành công!');
+        
+        // Emit sự kiện xóa với ID của key result để parent component cập nhật danh sách
+        this.keyResultDeleted.emit(this.keyResultId);
+        
+        // Đóng popup
+        this.visiblePopUpAddEditKeyResult.emit(false);
+      },
+      error: (err: any) => {
+        console.error("Error deleting key result:", err);
+        this.message.error(err?.error?.message || 'Có lỗi xảy ra khi xóa kết quả chính');
+      },
+      complete: () => {
+        this.isDeleteLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+  
   dataMember: any = [];
   visiblePopUpAddMember: boolean = false;
   handleDataPopUpAddMember(e: any) {

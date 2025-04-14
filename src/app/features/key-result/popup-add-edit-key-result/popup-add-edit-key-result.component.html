@@ -50,7 +50,7 @@
 
                 <div class="flex flex-col col-span-2 translate-y-[-15px]">
                     <span>{{'PopUpAddEditKeyResult.description'|translate}}</span>
-                    <textarea placeholder="{{'PopUpAddEditKeyResult.enterDescription'|translate}}"
+                    <textarea formControlName="description" placeholder="{{'PopUpAddEditKeyResult.enterDescription'|translate}}"
                         class="p-2 resize-none h-[250px] border outline-none"></textarea>
                 </div>
                 <mat-form-field class="custom-input  col-span-2" appearance="outline">
@@ -65,10 +65,28 @@
     </ng-template>
 
     <ng-template #modalFooter>
-        <div class="flex justify-center">
-            <button nz-button nzType="primary"
+        <div class="flex justify-center gap-2">
+            <button *ngIf="!keyResultId" nz-button nzType="primary"
                 class="!bg-primary text-white border-none rounded-lg hover:opacity-60 hover:bg-primary  hover:white"
                 (click)="handleOk()" [nzLoading]="isConfirmLoading">{{'Button.add'| translate }}</button>
+        
+            <button *ngIf="keyResultId" nz-button nzType="primary"
+                class="!bg-primary border-none rounded-lg hover:opacity-60 hover:bg-primary text-white hover:text-black"
+                (click)="handleEditKeyResult()" [nzLoading]="isConfirmLoading">
+                {{'Button.save'| translate }}
+            </button>
+            
+            <button *ngIf="keyResultId" nz-button
+                class="!bg-red-600 border-none rounded-lg hover:opacity-60 text-white hover:text-black" 
+                nz-popconfirm
+                nzPopconfirmTitle="{{'Toast.confirmDelete'|translate}} " 
+                (nzOnConfirm)="handleDelete()"
+                nzPopconfirmPlacement="top" 
+                [nzLoading]="isDeleteLoading" 
+                nzCancelText="{{'Button.cancel'|translate}}"
+                nzOkText="{{'Button.confirm'|translate}}">
+                {{'Button.delete'| translate }}
+            </button>
         </div>
     </ng-template>
 </nz-modal>
