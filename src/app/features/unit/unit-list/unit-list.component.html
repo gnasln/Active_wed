@@ -72,89 +72,84 @@
         <div class="w-[60%] h-[100vh] bg-primaryBG p-3 shadow-[2px_0px_7px_0px_rgba(1,87,155,0.30)]"
             [ngStyle]="style2">
             <div>
-                <div class="ml-5 flex items-center text-[20px] font-medium">
+                <div class="ml-5 flex items-center text-[20px] font-medium mb-4">
                     <span>TrueConnect</span>
                     <span nz-icon nzType="arrowsIcon:antd" class="icon" nzTheme="outline"></span>
                     <span>{{'Menu.task' | translate}}</span>
                     <span nz-icon nzType="arrowsIcon:antd" class="icon" nzTheme="outline"></span>
                     <span>{{'Menu.otherTasks' | translate}}</span>
                 </div>
-                <div class="ml-8 flex items-center gap-4 mt-8">
-                    <span *ngIf="idListTaskOpen===0" (click)="handleOpenListOfTask(-1)" nz-icon
-                        nzType="arrowsUpIcon:antd" class="icon text-[24px] cursor-pointer" nzTheme="outline"></span>
-                    <span *ngIf="idListTaskOpen!==0" (click)="handleOpenListOfTask(0)" nz-icon
-                        nzType="arrowsDownIcon:antd" class="icon text-[24px] cursor-pointer" nzTheme="outline"></span>
-
-                    <span class="text-[24px] font-medium">{{'Menu.otherTasks'| translate}}</span>
-                </div>
-                <div class="mt-6 flex flex-col gap-4" [class.hidden]="idListTaskOpen!==0">
-                    <div
-                        class="border-[rgba(131, 166, 211, 0.64)] border-[3px] border-solid min-h-[200px] bg-white rounded-[20px] overflow-hidden shadow-[2px_0px_7px_0px_rgba(1,87,155,0.30)]">
-
-                        <div class="p-6 px-12 max-h-[720px] overflow-scroll no-scrollbar">
-                            <div class="mt-3" *ngFor="let item of data">
-                                <app-task-list-item [data]="item">
-                                    <div class="flex flex-col gap-2">
-                                        <app-sub-task-item *ngIf="item.subTodoItems.length"
-                                            [data]="item.subTodoItems"></app-sub-task-item>
-                                        <div class="hover:text-[#1890ff] ml-9 w-fit flex">
-                                            <span nz-icon nzType="circleIcon:antd" class="icon inline-block"
-                                                nzTheme="outline"></span>
-                                            <span nz-icon nzType="plus-circle" (click)="handleOpenAddSubTask(item.id)"
-                                                class="cursor-pointer icon inline-block bg-white rounded-[50%] translate-x-[-50%]"
-                                                nzTheme="outline"></span>
+                
+                <div class="overflow-y-auto h-[calc(100vh-100px)] pr-2">
+                    <div *ngFor="let object of listObjects" class="mt-6">
+                        <div class="ml-8 flex items-center gap-4">
+                            <span *ngIf="object.expanded" (click)="toggleObjectExpand(object)" nz-icon
+                                nzType="arrowsUpIcon:antd" class="icon text-[24px] cursor-pointer" nzTheme="outline"></span>
+                            <span *ngIf="!object.expanded" (click)="toggleObjectExpand(object)" nz-icon
+                                nzType="arrowsDownIcon:antd" class="icon text-[24px] cursor-pointer" nzTheme="outline"></span>
+                            <span nz-icon nzType="ghostIcon:antd" class="icon text-[24px] cursor-pointer" nzTheme="outline"></span>
+                            <span class="text-[24px] font-medium">{{ object.title }}</span>
+                        </div>
+                        
+                        <div class="mt-6 flex flex-col gap-4 ml-8" [class.hidden]="!object.expanded">
+                            <div class="border-[rgba(131, 166, 211, 0.64)] border-[3px] border-solid min-h-[200px] bg-white rounded-[20px] overflow-hidden shadow-[2px_0px_7px_0px_rgba(1,87,155,0.30)]">
+                                <div class="p-6 px-12">
+                                    <div>
+                                        <div class="text-[18px] font-medium mb-4">Kết quả chính</div>
+                                        <div *ngIf="getKeyResultsForObject(object.id).length === 0" class="mb-4 text-gray-500">
+                                            Chưa có kết quả chính
+                                        </div>
+                                        <div *ngIf="getKeyResultsForObject(object.id).length > 0">
+                                            <div *ngFor="let keyResult of getKeyResultsForObject(object.id)" class="mb-6">
+                                                <app-key-result-item 
+                                                    [keyResultData]="keyResult" 
+                                                    [objectId]="object.id">
+                                                </app-key-result-item>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="hover:text-[#1890ff] w-fit flex mt-4 mb-6 items-center">
+                                            <div class="relative flex items-center">
+                                                <span nz-icon nzType="keySquareIcon:antd" class="icon" nzTheme="outline"></span>
+                                                <span nz-icon nzType="plus-circle" (click)="openKeyResultDialog(object.id)"
+                                                    class="cursor-pointer icon bg-white rounded-[50%] absolute left-1/2 transform -translate-x-1/2"
+                                                    nzTheme="outline"></span>
+                                            </div>
+                                            <span class="ml-4 inline-flex items-center">Thêm kết quả chính</span>
                                         </div>
                                     </div>
-                                </app-task-list-item>
-                            </div>
-                            <p class="text-center cursor-pointer hover:underline mt-5" (click)="loadMoreTasks()">
-                                {{'UnitItem.seeMore' | translate}}</p>
-                            <div class="hover:text-[#1890ff] w-fit flex">
-                                <span nz-icon nzType="circleIcon:antd" class="icon inline-block"
-                                    nzTheme="outline"></span>
-                                <span nz-icon nzType="plus-circle" (click)="handleOpenAddTask()"
-                                    class="cursor-pointer icon inline-block bg-white rounded-[50%] translate-x-[-50%]"
-                                    nzTheme="outline"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-            <div *ngIf="false">
-                <div class="ml-8 flex items-center gap-4 mt-8">
-                    <span *ngIf="idListTaskOpen===1" (click)="handleOpenListOfTask(-1)" nz-icon
-                        nzType="arrowsUpIcon:antd" class="icon text-[24px] cursor-pointer" nzTheme="outline"></span>
-                    <span *ngIf="idListTaskOpen!==1" (click)="handleOpenListOfTask(1)" nz-icon
-                        nzType="arrowsDownIcon:antd" class="icon text-[24px] cursor-pointer" nzTheme="outline"></span>
-                    <span nz-icon nzType="taskIcon:antd" class="icon text-[24px] cursor-pointer"
-                        nzTheme="outline"></span>
-                    <span class="text-[24px] font-medium">Rad 1</span>
-                </div>
-                <div class="mt-6 flex flex-col gap-4" [class.hidden]="idListTaskOpen!==1">
-                    <div
-                        class="border-[rgba(131, 166, 211, 0.64)] border-[3px] border-solid min-h-[200px] bg-white rounded-[20px] overflow-hidden shadow-[2px_0px_7px_0px_rgba(1,87,155,0.30)]">
-
-                        <div class="p-6 px-12">
-                            <div class="mt-3" *ngFor="let item of data">
-                                <app-task-list-item [data]="item">
-                                    <app-sub-task-item *ngIf="item.subTask" [data]="item.subTask"></app-sub-task-item>
-                                </app-task-list-item>
-                            </div>
-                            <div class="hover:text-[#1890ff] w-fit flex">
-                                <span nz-icon nzType="circleIcon:antd" class="icon inline-block"
-                                    nzTheme="outline"></span>
-                                <span nz-icon nzType="plus-circle" (click)="handleOpenAddTask()"
-                                    class="cursor-pointer icon inline-block bg-white rounded-[50%] translate-x-[-50%]"
-                                    nzTheme="outline"></span>
+                                    
+                                    <div class="mt-6">
+                                        <div class="text-[18px] font-medium mb-4">Công việc</div>
+                                        <div *ngIf="getTasksForObject(object.id).length === 0" class="mb-4 text-gray-500">
+                                            Chưa có công việc nào
+                                        </div>
+                                        <div *ngIf="getTasksForObject(object.id).length > 0">
+                                            <div *ngFor="let task of getTasksForObject(object.id)" class="mt-3">
+                                                <app-task-of-key-result-item 
+                                                    [idTask]="task.id"
+                                                    [taskData]="task"
+                                                    [objectId]="object.id"
+                                                    (taskUpdated)="onTaskUpdated($event, object.id)"
+                                                    (openEditPopup)="openEditTaskPopup($event)">
+                                                </app-task-of-key-result-item>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="hover:text-[#1890ff] w-fit flex mt-4 items-center">
+                                            <div class="relative flex items-center">
+                                                <span nz-icon nzType="circleIcon:antd" class="icon" nzTheme="outline"></span>
+                                                <span nz-icon nzType="plus-circle" (click)="handleOpenAddTaskForObject(object.id)"
+                                                    class="cursor-pointer icon bg-white rounded-[50%] absolute left-1/2 transform -translate-x-1/2"
+                                                    nzTheme="outline"></span>
+                                            </div>
+                                            <span class="ml-4 inline-flex items-center">Thêm công việc</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <app-key-result-item></app-key-result-item>
-                    <app-key-result-item></app-key-result-item>
-
                 </div>
             </div>
         </div>
@@ -162,15 +157,39 @@
 </div>
 <app-unit-popup-add-edit *ngIf="visibleList" [idUnit]="idUnit" (visibleList)="handleVisibleList($event)"
     [isVisible]="visibleList"></app-unit-popup-add-edit>
-<app-popup-add-edit-task *ngIf="visibleAddTask" [idUnit]="idUnit" [idParentTask]="idParentTask" (visibleList)="handleVisibleTaskAdd($event)"
+<app-popup-add-edit-task *ngIf="visibleAddTask" 
+    [idUnit]="idUnit" 
+    [idParentTask]="idParentTask" 
+    [idTaskDetail]="idTaskEdit"
+    [objectId]="currentObjectId" 
+    (visibleList)="handleVisibleTaskAdd($event)"
+    (taskDeleted)="handleTaskDeleted($event)"
+    (taskUpdated)="handleTaskUpdated($event)"
     [isVisible]="visibleAddTask"></app-popup-add-edit-task>
 
-    <app-popup-add-edit-object 
+<app-popup-add-edit-key-result 
+    *ngIf="visibleAddKeyResult" 
+    [isVisible]="visibleAddKeyResult"
+    [objectId]="currentObjectId"
+    (visiblePopUpAddEditKeyResult)="handleVisibleKeyResultAdd($event)"
+    (keyResultCreated)="handleKeyResultCreated($event)">
+</app-popup-add-edit-key-result>
+
+<app-popup-add-edit-object 
     *ngIf="editObjectVisible" 
     [idUnit]="UnitIdService" 
     [objectId]="editingObjectId"
     [selectedUnit]="selectedUnitForEdit"
     [selectedTenant]="selectedTenantForEdit"
     (visibleListObject)="handleEditObjectClose($event)"
+    (objectCreated)="handleObjectCreated()"
     [isVisible]="editObjectVisible">
-  </app-popup-add-edit-object>
+</app-popup-add-edit-object>
+
+<style>
+  ::ng-deep .ant-btn-loading-icon {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+</style>

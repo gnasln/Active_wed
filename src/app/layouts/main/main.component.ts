@@ -312,6 +312,18 @@ export class MainComponent implements OnInit, OnChanges {
     this.visibleListObject = e;
   }
 
+  handleObjectCreated() {
+    // Refresh the unit's object list if we're on the appropriate page
+    if (this.router.url.includes('/unit/')) {
+      // Get the latest value from the unitId$ Observable
+      this.valueUnitService.unitId$.subscribe(unitId => {
+        if (unitId) {
+          this.valueUnitService.setUnitId(unitId);
+        }
+      }).unsubscribe(); // Unsubscribe immediately after getting the value
+    }
+  }
+
   handleOpenObject(unitID: any, event: Event){
     event.stopPropagation();
     event.preventDefault();

@@ -77,7 +77,10 @@ export class PopupAddEditTaskComponent implements OnInit, AfterViewChecked {
   @Input() idUnit: any;
   @Input() idParentTask: any;
   @Input() idTaskDetail: any;
+  @Input() objectId: any;
   @Output() visibleList = new EventEmitter<boolean>();
+  @Output() taskDeleted = new EventEmitter<string>();
+  @Output() taskUpdated = new EventEmitter<any>();
   isConfirmLoading = false;
   priorityLevelHigh: string;
   priorityLevelMedium: string;
@@ -118,6 +121,13 @@ export class PopupAddEditTaskComponent implements OnInit, AfterViewChecked {
 
     if (this.idParentTask) {
       body['parentTodoItemId'] = this.idParentTask;
+    }
+
+    if (this.objectId) {
+      body['objectId'] = this.objectId;
+      console.log("Đang tạo task với objectId:", this.objectId);
+    } else {
+      console.log("Không có objectId được truyền vào popup task");
     }
 
     Object.keys(body).forEach((key) => {
@@ -313,6 +323,8 @@ export class PopupAddEditTaskComponent implements OnInit, AfterViewChecked {
     });
   }
   handleEditTask() {
+    this.isConfirmLoading = true;
+    
     const body: updateToDoModel = {
       id: this.idTaskDetail,
       title: this.form.get('taskName')?.value,
@@ -330,30 +342,72 @@ export class PopupAddEditTaskComponent implements OnInit, AfterViewChecked {
         ? this.form.get('member')?.value[0]?.userName
         : null,
     };
+    
     if (
       moment(this.form.get('deadline')?.value).startOf('day') <
       moment().startOf('day')
     ) {
       this._snackBar.error(this.DueDate);
+      this.isConfirmLoading = false;
       return;
     }
+    
     Object.keys(body).forEach((key) => {
       if (body[key] === null || body[key] === '' || body[key] === 0) {
         delete body[key];
       }
     });
-    this.todoService.updateToDo(body).subscribe((data) => {
-      this._snackBar.success(this.updateSuccess);
-      console.log("Ngày chỉnh sửa: ", data)
-      this._store.dispatch(loadTodos());
-      this.visibleList.emit(false);
-    });
+    
+    this.todoService.updateToDo(body).subscribe(
+      (data) => {
+        this._snackBar.success(this.updateSuccess);
+        console.log("Task updated successfully:", data);
+        
+        // Đảm bảo dữ liệu trả về đã đủ trường cần thiết cho component cha
+        const updatedTask = {
+          id: this.idTaskDetail,
+          ...data, // Dữ liệu từ API trả về
+          ...body, // Dữ liệu từ form (phòng khi API không trả về đầy đủ)
+        };
+        
+        // Cập nhật store global
+        this._store.dispatch(loadTodos());
+        
+        // Đóng popup
+        this.visibleList.emit(false);
+        
+        // Emit sự kiện đã cập nhật
+        this.taskUpdated.emit(updatedTask);
+        
+        this.isConfirmLoading = false;
+      },
+      (error) => {
+        console.error('Error updating task:', error);
+        this._snackBar.error('Có lỗi xảy ra khi cập nhật nhiệm vụ');
+        this.isConfirmLoading = false;
+      }
+    );
   }
   handleDeleteTask() {
-    this.todoService.deleteToDo(this.idTaskDetail).subscribe(() => {
-      this._snackBar.success(this.deleteSuccess);
-      this._store.dispatch(loadTodos());
-    });
+    this.isConfirmLoading = true;
+    this.todoService.deleteToDo(this.idTaskDetail).subscribe(
+      (response) => {
+        this._snackBar.success(this.deleteSuccess);
+        this._store.dispatch(loadTodos());
+        
+        // Đóng popup sau khi xóa thành công
+        this.visibleList.emit(false);
+        this.isConfirmLoading = false;
+        
+        // Gửi sự kiện xóa thành công qua output event
+        this.taskDeleted.emit(this.idTaskDetail);
+      },
+      (error) => {
+        console.error('Error deleting task:', error);
+        this._snackBar.error('Có lỗi xảy ra khi xóa nhiệm vụ');
+        this.isConfirmLoading = false;
+      }
+    );
   }
 
   visiblePopUpSubTaskList: boolean = false;

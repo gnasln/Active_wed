@@ -14,6 +14,9 @@ import { AuthService } from '../api/auth.service';
 
 @Injectable()
 export class ResponseInterceptor implements HttpInterceptor {
+  // Biến tĩnh để theo dõi trạng thái đăng xuất
+  private static isLoggingOut = false;
+  
   constructor(
     private router: Router,
     private message: NzMessageService,
@@ -39,8 +42,17 @@ export class ResponseInterceptor implements HttpInterceptor {
             }
             switch (error.status) {
               case 401:
-                this.message.info('Hết phiên đăng nhập');
-                this.authService.logout();
+                // Kiểm tra xem đã đang trong quá trình đăng xuất chưa
+                if (!ResponseInterceptor.isLoggingOut) {
+                  ResponseInterceptor.isLoggingOut = true;
+                  this.message.info('Hết phiên đăng nhập');
+                  this.authService.logout();
+                  
+                  // Đặt lại trạng thái sau một khoảng thời gian
+                  setTimeout(() => {
+                    ResponseInterceptor.isLoggingOut = false;
+                  }, 3000);
+                }
                 break;
               case 500:
                 this.message.info('Lỗi hệ thống');

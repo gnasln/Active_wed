@@ -22,7 +22,7 @@ import { NzSelectModule, NzSelectSizeType } from 'ng-zorro-antd/select';
 import { ToDOService } from '../../../core/api/todo.service';
 import {
   changeParentToDoModel,
-  changeUnitidToDoModel,
+  changeObjectToDoModel,
   getListToDoModel,
 } from '../../../core/model/toDo.model';
 import { Store } from '@ngrx/store';
@@ -91,7 +91,7 @@ export class PopupChangeGroupComponent implements OnInit, OnDestroy {
         pageSize: 100,
       };
       if (isNaN(Number(idUnit))) {
-        body.unitId = value;
+        body.objectId = value;
       }
       this.ToDoService.getListToDo(body).subscribe((data) => {
         this.toDoList = data.items;
@@ -151,9 +151,9 @@ export class PopupChangeGroupComponent implements OnInit, OnDestroy {
       id: this.idTask,
       parentId: this.form.get('Task')?.value,
     };
-    const bodyChangeUnitId: changeUnitidToDoModel = {
+    const bodyChangeUnitId: changeObjectToDoModel = {
       id: this.idTask,
-      unitId: this.form.get('Unit')?.value,
+      objectId: this.form.get('Unit')?.value,
     };
     if (this.form.get('Task')?.value) {
       this.ToDoService.changeParentToDo(body).subscribe((data) => {
@@ -163,7 +163,7 @@ export class PopupChangeGroupComponent implements OnInit, OnDestroy {
       });
     }
     if (this.form.get('Unit')?.value) {
-      this.ToDoService.changeUnitId(bodyChangeUnitId).subscribe(
+      this.ToDoService.changeObjectId(bodyChangeUnitId).subscribe(
         (data) => {
           this._snackbar.success(this.updateSuccess);
           this._store.dispatch(loadTodos());

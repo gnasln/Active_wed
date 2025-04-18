@@ -13,6 +13,9 @@ import { registerModel } from '../model/account.model';
 export class AuthService {
   isUserLoggedIn!: boolean;
   public apiUrl = environment.API_URL;
+  
+  // Biến tĩnh để tránh nhiều lần đăng xuất cùng lúc
+  private static isLoggingOut = false;
 
   constructor(
     private http: HttpClient,
@@ -26,9 +29,22 @@ export class AuthService {
   }
 
   logout(): void {
+    // Kiểm tra xem đã đang trong quá trình đăng xuất chưa
+    if (AuthService.isLoggingOut) {
+      return;
+    }
+    
+    AuthService.isLoggingOut = true;
+    
+    // Thực hiện đăng xuất
     this.storageService.clearStorage();
     this.OAuthService.logOut();
     this.router.navigate(['/login']);
+    
+    // Đặt lại trạng thái sau một khoảng thời gian
+    setTimeout(() => {
+      AuthService.isLoggingOut = false;
+    }, 3000);
   }
 
   handleOAuthLogin(token: string, email: string): Observable<any> {

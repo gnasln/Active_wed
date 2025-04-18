@@ -65,6 +65,7 @@ export class PopupAddEditObjectComponent {
   @Input() selectedUnit: any = null;
   @Input() objectId: any = null;
   @Output() visibleListObject = new EventEmitter<boolean>();
+  @Output() objectCreated = new EventEmitter<void>();
   isConfirmLoading = false;
   isDeleteLoading = false;
   priorityLevelHigh: string;
@@ -176,16 +177,26 @@ handleOk(): void {
       delete body[key];
     }
   });
-  this.objectService.createObject(body).subscribe((res: any) => {
-    if(res.data) {
-      this.visibleListObject.emit(false);
-      this.message.success('Tạo đối tượng thành công!');
-      this.cdr.detectChanges();
+  
+  this.isConfirmLoading = true;
+  
+  this.objectService.createObject(body).subscribe({
+    next: (res: any) => {
+      if(res.data) {
+        this.message.success('Tạo đối tượng thành công!');
+        this.objectCreated.emit();
+        this.visibleListObject.emit(false);
+        this.cdr.detectChanges();
+      }
+    },
+    error: (err: any) => {
+      this.message.error(err);
+      this.isConfirmLoading = false;
+    },
+    complete: () => {
+      this.isConfirmLoading = false;
     }
-  }, (err: any) => {
-    this.message.error(err);
-  })
-  this.visibleListObject.emit(false);
+  });
 }
 
   public form: FormGroup = this.fb.group({
@@ -269,6 +280,7 @@ handleEditObject(): void {
       console.log('Update response:', res);
       if (res.data) {
         this.message.success('Cập nhật đối tượng thành công!');
+        this.objectCreated.emit();
         this.visibleListObject.emit(false);
       }
     },
@@ -289,20 +301,22 @@ handleEditObject(): void {
     }
 
     this.isDeleteLoading = true;
-    this.objectService.deleteObject(this.objectId).subscribe(
-      (res: any) => {
+    this.objectService.deleteObject(this.objectId).subscribe({
+      next: (res: any) => {
         if (res.data) {
           this.message.success('Xóa đối tượng thành công!');
+          this.objectCreated.emit();
           this.visibleListObject.emit(false);
           this.cdr.detectChanges();
         }
       },
-      (err: any) => {
+      error: (err: any) => {
         this.message.error(err);
+        this.isDeleteLoading = false;
       },
-      () => {
+      complete: () => {
         this.isDeleteLoading = false;
       }
-    );
+    });
   }
 }

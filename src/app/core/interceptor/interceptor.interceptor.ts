@@ -13,6 +13,9 @@ import { SnackbarService } from '../services/snackbar.service';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { TranslateService } from '@ngx-translate/core';
 
+// Biến tĩnh chia sẻ giữa các interceptor để tránh đăng xuất nhiều lần
+let isLoggingOut = false;
+
 export const Interceptor: HttpInterceptorFn = (request, next) => {
   const router = inject(Router);
   const snackbar = inject(SnackbarService);
@@ -39,7 +42,10 @@ export const Interceptor: HttpInterceptorFn = (request, next) => {
       catchError((err: any) => {
         if (err instanceof HttpErrorResponse) {
           // Handle HTTP errors
-          if (err.status === 401) {
+          if (err.status === 401 && !isLoggingOut) {
+            // Đánh dấu đang trong quá trình đăng xuất
+            isLoggingOut = true;
+            
             // Specific handling for unauthorized errors
             router.navigate(['/login']);
 
@@ -47,15 +53,23 @@ export const Interceptor: HttpInterceptorFn = (request, next) => {
             oauth
               .refreshToken()
               .then(() => {
-                // location.reload();
+                // Chỉ hiển thị thông báo một lần
                 snackbar.error(toast);
+                
+                // Đặt lại trạng thái sau một khoảng thời gian
+                setTimeout(() => {
+                  isLoggingOut = false;
+                }, 3000);
               })
               .catch((err) => {
                 snackbar.error(toast);
                 router.navigate(['/login']);
+                
+                // Đặt lại trạng thái sau một khoảng thời gian
+                setTimeout(() => {
+                  isLoggingOut = false;
+                }, 3000);
               });
-
-            // You might trigger a re-authentication flow or redirect the user here
           }
         } else {
           // Handle non-HTTP errors

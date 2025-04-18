@@ -1,5 +1,5 @@
 export class getListToDoModel {
-  unitId?: string;
+  objectId?: string;
   ownerId?: string;
   assigner?: string;
   assignee?: string;
@@ -20,7 +20,7 @@ export class createToDoModel {
   assigner?: string;
   assignee?: string;
   assigneeName?: string;
-  unitId?: string;
+  objectId?: string;
   parentTodoItemId?: string;
   [key: string]: any;
 }
@@ -38,7 +38,8 @@ export class updateToDoModel {
   assigner?: string;
   assignee?: string;
   assigneeName?: string;
-  unitId?: string;
+  objectId?: string;
+  isDone?: boolean;
   [key: string]: any;
 }
 
@@ -47,7 +48,7 @@ export class changeParentToDoModel {
   parentId: string;
 }
 
-export class changeUnitidToDoModel {
+export class changeObjectToDoModel {
   id: string;
-  unitId: string;
+  objectId: string;
 }

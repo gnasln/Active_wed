@@ -7,3 +7,23 @@
     background-color: green;
   }
 }
+
+label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.ant-checkbox {
+  cursor: pointer;
+}
+
+.ant-checkbox + span {
+  padding-left: 8px;
+}
+
+.task-title {
+  &:hover {
+    text-decoration: underline;
+  }
+}

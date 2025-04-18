@@ -12,6 +12,7 @@ export class GetListTodoBodyService {
     pageNumber: 1,
     pageSize: 10,
     // ownerId: this.userInfor.sub,
+    objectId: null // Mặc định là null để lấy các task không thuộc object nào
   };
   setBodyGetListTodo(body: any) {
     this.body = body;

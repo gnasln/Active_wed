@@ -93,7 +93,6 @@ export class UnitItemComponent implements AfterViewInit, OnInit {
     const index = this.listKeyResults.findIndex((item: any) => item.id === updatedKeyResult.id);
     if (index !== -1) {
       this.listKeyResults[index] = updatedKeyResult;
-      this.message.success('Cập nhật kết quả chính thành công!');
     }
     this.selectedKeyResultId = null;
     this.cdr.detectChanges();

@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 import { StorageService } from '../services/storage.service';
 import {
   changeParentToDoModel,
-  changeUnitidToDoModel,
+  changeObjectToDoModel,
   createToDoModel,
   getListToDoModel,
   updateToDoModel,
@@ -55,7 +55,7 @@ export class ToDOService {
   changeParentToDo(body: changeParentToDoModel): Observable<any> {
     return this.http.patch(this.apiUrl + '/api/todo/change_parent', body);
   }
-  changeUnitId(body: changeUnitidToDoModel): Observable<any> {
-    return this.http.patch(this.apiUrl + '/api/todo/change-unit-id', body);
+  changeObjectId(body: changeObjectToDoModel): Observable<any> {
+    return this.http.patch(this.apiUrl + '/api/todo/change-object-id', body);
   }
 }

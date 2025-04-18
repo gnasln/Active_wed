@@ -145,5 +145,7 @@
   (tenantUpdated)="handleTenantCreated($event)"
 ></app-tenant-popup-add-edit>
 
-<app-popup-add-edit-object *ngIf="visibleListObject" [idUnit]="idUnit" (visibleListObject)="handleVisibleListObject($event)"
+<app-popup-add-edit-object *ngIf="visibleListObject" [idUnit]="idUnit" 
+(visibleListObject)="handleVisibleListObject($event)"
+(objectCreated)="handleObjectCreated()"
 [isVisible]="visibleListObject"></app-popup-add-edit-object>

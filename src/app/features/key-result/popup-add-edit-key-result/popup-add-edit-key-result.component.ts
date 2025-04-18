@@ -277,7 +277,7 @@ export class PopupAddEditKeyResultComponent implements OnInit, OnChanges{
       title: this.form.get('scale')?.value,
       description: this.form.get('description')?.value,
       objectTBId: this.objectId,
-      dueDate: this.form.get('deadline')?.value,
+      dueDate: this.form.get('deadline')?.value ? moment(this.form.get('deadline')?.value).format('YYYY-MM-DD') : null,
       memberIds: this.listMember.length ? this.listMember.map((member: any) => member.member) : [],
       memberNames: this.listMemberName
     };
