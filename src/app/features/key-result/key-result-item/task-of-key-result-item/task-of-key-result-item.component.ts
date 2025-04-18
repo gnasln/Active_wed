@@ -17,6 +17,8 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { Router } from '@angular/router';
 import { ToDOService } from '../../../../core/api/todo.service';
 import { PopupAddEditTaskComponent } from '../../../task/popup-add-edit-task/popup-add-edit-task.component';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-task-of-key-result-item',
@@ -50,7 +52,9 @@ export class TaskOfKeyResultItemComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private router: Router,
     private todoService: ToDOService,
-    private zone: NgZone
+    private zone: NgZone,
+    private message: NzMessageService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -120,6 +124,13 @@ export class TaskOfKeyResultItemComponent implements OnInit {
           this.taskData.status = newStatus;
         }
         
+        // Hiển thị thông báo thành công
+        if (checked) {
+          this.message.success('Hoàn thành công việc thành công!');
+        } else {
+          this.message.success('Hủy hoàn thành công việc thành công!');
+        }
+        
         // Emit event to parent component với isDone = checked để tương thích với interface
         this.taskUpdated.emit({
           id: this.taskData?.id || this.idTask,
@@ -129,6 +140,8 @@ export class TaskOfKeyResultItemComponent implements OnInit {
       },
       (error) => {
         console.error('Error updating task status:', error);
+        // Hiển thị thông báo lỗi
+        this.message.error(error?.error?.message || 'Cập nhật trạng thái công việc thất bại');
         // Revert checkbox state on error
         this.isChecked = !checked;
         this.cdr.detectChanges();

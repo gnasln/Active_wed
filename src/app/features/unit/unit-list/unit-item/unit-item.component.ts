@@ -110,9 +110,6 @@ export class UnitItemComponent implements AfterViewInit, OnInit {
       this.listKeyResults.splice(index, 1);
       console.log("Updated list after deletion:", this.listKeyResults);
       
-      // Thông báo xóa thành công
-      this.message.success('Xóa kết quả chính thành công!');
-      
       // Reset selectedKeyResultId
       this.selectedKeyResultId = null;
       
