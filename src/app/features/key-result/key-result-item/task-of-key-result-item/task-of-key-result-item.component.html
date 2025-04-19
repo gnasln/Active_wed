@@ -1,9 +1,8 @@
 <div class="w-[80%] overflow-hidden">
     <div class="grid grid-cols-[fit-content(100px)_1fr] item-center gap-2">
-        <div class="flex items-center">
-            <label nz-checkbox [(ngModel)]="isChecked" (ngModelChange)="onCheckboxChange($event)">
-                <span class="task-title cursor-pointer truncate max-w-[200px] block" (click)="openEditTaskPopup($event)" title="{{taskTitle}}">{{taskTitle}}</span>
-            </label>
+        <div class="flex items-center gap-2">
+            <label nz-checkbox [(ngModel)]="isChecked" (ngModelChange)="onCheckboxChange($event)"></label>
+            <span class="task-title cursor-pointer truncate max-w-[200px] block" (click)="openEditTaskPopup($event)" title="{{taskTitle}}">{{taskTitle}}</span>
         </div>
         <div class="flex flex-col items-end">
             <span class="text-red-500">{{taskDueDate}}</span>
