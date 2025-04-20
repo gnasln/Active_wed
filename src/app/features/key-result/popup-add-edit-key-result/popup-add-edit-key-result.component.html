@@ -53,12 +53,19 @@
                     <textarea formControlName="description" placeholder="{{'PopUpAddEditKeyResult.enterDescription'|translate}}"
                         class="p-2 resize-none h-[250px] border outline-none"></textarea>
                 </div>
-                <mat-form-field class="custom-input  col-span-2" appearance="outline">
-                    <mat-label>{{'PopUpAddEditKeyResult.deadline'| translate}}</mat-label>
-                    <input formControlName="deadline" matInput [matDatepicker]="picker" />
-                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                    <mat-datepicker #picker></mat-datepicker>
-                </mat-form-field>
+                <div class="flex flex-col col-span-2">
+                    <span>{{'PopUpAddEditKeyResult.deadline'| translate}}<span class="text-red-500">*</span></span>
+                    <mat-form-field class="custom-input col-span-2 w-full" appearance="outline">
+                        <input formControlName="deadline" matInput [matDatepicker]="picker" />
+                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                        <mat-error
+                            *ngIf="form.get('deadline')?.errors?.['required'] && (form.get('deadline')?.dirty || form.get('deadline')?.touched)"
+                            class="text-red-600">
+                            {{'PopUpAddEditKeyResult.noEmty'|translate}}
+                        </mat-error>
+                    </mat-form-field>
+                </div>
             </form>
 
         </div>
