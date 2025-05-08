@@ -29,7 +29,7 @@
                 <div class="col-span-2 flex flex-col">
                     <span>{{'PopupAddEditTenant.tenantName'|translate}}<span class="text-red-500">*</span></span>
                     <mat-form-field class="custom-input col-span-2" appearance="outline">
-                        <input matInput formControlName="tenantTitle" />
+                        <input matInput formControlName="tenantTitle" (blur)="logFormValue()" />
                         <mat-error
                             *ngIf="form.get('tenantTitle')?.errors?.['required']&& (form.get('tenantTitle')?.dirty || form.get('tenantTitle')?.touched)"
                             class="text-red-600">
@@ -64,5 +64,5 @@
 </nz-modal>
 
 <app-popup-add-member *ngIf="visiblePopUpAddMember" (data)="handleDataPopUpAddMember($event)"
-    [isVisiblePopUpAddMember]="visiblePopUpAddMember" [type]="'unit'" [dataMember]="dataMember">
+    [isVisiblePopUpAddMember]="visiblePopUpAddMember" [type]="'tenant'" [dataMember]="dataMember">
 </app-popup-add-member>

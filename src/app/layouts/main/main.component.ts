@@ -420,12 +420,30 @@ export class MainComponent implements OnInit, OnChanges {
   }
 
   handleTenantCreated(a: any): void {
+    console.log('Received tenant data:', a);
+    if (!a) {
+      console.error('No tenant data received');
+      return;
+    }
+    
+    // Tìm vị trí của tenant trong mảng
     const tenantIndex = this.tenants.findIndex((tenant: any) => tenant.id === a.id);
+    
     if (tenantIndex !== -1) {
+      // Cập nhật tenant hiện có
+      console.log('Updating existing tenant at index:', tenantIndex);
       this.tenants[tenantIndex] = a;
     } else {
+      // Thêm tenant mới vào danh sách
+      console.log('Adding new tenant to list');
       this.tenants.push(a);
     }
+    
+    // Đảm bảo UI được cập nhật
+    this.cdr.detectChanges();
+    
+    // Tùy chọn: Reload danh sách tenant từ server
+    this.loadTenants();
   }
   
   handleUnitCreated(updatedUnit: any): void {

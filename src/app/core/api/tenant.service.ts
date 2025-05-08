@@ -34,7 +34,24 @@ export class TenantService {
   }
 
   updateTenant(body: any): Observable<any> {
-    return this.http.patch(this.apiUrl + '/api/tenant/update', body)
+    console.log('TenantService - updateTenant request body:', body);
+    
+    // Clone body để không ảnh hưởng đến dữ liệu gốc
+    const modifiedBody = {...body};
+    
+    // Thử nghiệm: Thêm các trường khác có thể là tên thật của trường "name" trên API
+    if (modifiedBody.name) {
+      modifiedBody.title = modifiedBody.name;        // Thử với "title"
+      modifiedBody.tenantName = modifiedBody.name;   // Thử với "tenantName"
+      // Tên trường trong form là tenantTitle, đã thêm ở component
+      
+      // Dựa vào response từ API, có thể backend cần một trong các trường sau
+      modifiedBody.displayName = modifiedBody.name;  // Thử với "displayName"
+      modifiedBody.organizationName = modifiedBody.name; // Thử với "organizationName"
+    }
+    
+    console.log('TenantService - modified request body:', modifiedBody);
+    return this.http.patch(this.apiUrl + '/api/tenant/update', modifiedBody)
   }
 
   deleteTenant(idTenant: string): Observable<any> {

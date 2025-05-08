@@ -87,14 +87,15 @@ export class TenantPopupAddEditComponent implements OnInit{
   dataMember: any = [];
   visiblePopUpAddMember: boolean = false;
   handleDataPopUpAddMember(e: any) {
-    if (!e || !e.members || !e.membersName) {
-      console.error('Invalid member data received');
+    console.log('Received data from popup-add-member:', e);
+    if (!e) {
+      console.error('No data received from popup');
       return;
     }
 
     this.visiblePopUpAddMember = e.isVisible;
     
-    // Ensure we have matching arrays
+    // Kiểm tra dữ liệu thành viên nhận được
     const members = e.members || [];
     const memberNames = e.membersName || [];
     
@@ -103,15 +104,14 @@ export class TenantPopupAddEditComponent implements OnInit{
       return;
     }
 
+    // Cập nhật form 
     this.form.patchValue({
-      member: members.map((memberId: any, index: number) => ({
-        memberId: memberId,
-        memberName: memberNames[index]
-      })),
+      member: members
     });
 
+    // Cập nhật danh sách thành viên
     this.listMemberName = memberNames;
-    this.listMember = members.map((memberId: any) => ({
+    this.listMember = members.map((memberId: any, index: number) => ({
       member: memberId,
       img: '../../../../assets/img/avatar.png',
     }));
@@ -122,34 +122,46 @@ export class TenantPopupAddEditComponent implements OnInit{
     this.visiblePopUpAddMember = true;
   }
 
+  logFormValue() {
+    console.log('Current form values:', {
+      tenantTitle: this.form.get('tenantTitle')?.value,
+      description: this.form.get('description')?.value
+    });
+  }
+
   getDetailTenant(){
+    console.log('Getting tenant details for ID:', this.idTenant);
     this.tenantService.getDetailTenant(this.idTenant).subscribe(res => {
+      console.log('Tenant detail response from API:', res);
       if (res && res.data) {
+        console.log('Setting form values from API response:', {
+          name: res.data.name,
+          description: res.data.description
+        });
         this.form.patchValue({
           tenantTitle: res.data.name,
           description: res.data.description
         });
-
+        // Cập nhật danh sách thành viên
         if (res.data.memberNames && res.data.memberIds) {
           this.listMemberName = res.data.memberNames;
           this.listMember = res.data.memberIds.map((memberId: any) => ({
             member: memberId,
             img: '../../../../assets/img/avatar.png',
           }));
-        // Cập nhật dataMember để truyền vào component con
-        this.dataMember = this.listMember.map((member: any, index: number) => ({
-          userId: res.data.memberIds[index],
-          userName: res.data.memberNames[index]
-        }));
+          
+          // Cập nhật dataMember để truyền cho popup-add-member
+          this.dataMember = res.data.memberIds.map((memberId: any, index: number) => ({
+            userId: memberId,
+            userName: res.data.memberNames[index]
+          }));
         }
-        
-        this.cdr.detectChanges();
       }
     })
   }
 
   handleOk(): void {
-    // Kiểm tra form hợp lệ trước khi submit
+    // Kiểm tra form hợp lệ
     if (this.form.invalid) {
       Object.values(this.form.controls).forEach(control => {
         if (control.invalid) {
@@ -161,41 +173,73 @@ export class TenantPopupAddEditComponent implements OnInit{
       return;
     }
 
-    this.isConfirmLoading = true;
-    const body: createTenantModel = {
-      name: this.form.get('tenantTitle')?.value,
+    // Log giá trị form trước khi gửi đi
+    console.log('Form values before submission:', {
+      tenantTitle: this.form.get('tenantTitle')?.value,
       description: this.form.get('description')?.value,
-      memberIds: this.listMember.map((member: any) => member.member),
+      memberList: this.listMember,
+      memberNames: this.listMemberName
+    });
+
+    this.isConfirmLoading = true;
+    
+    // Xây dựng body request một cách rõ ràng
+    const tenantName = this.form.get('tenantTitle')?.value;
+    const description = this.form.get('description')?.value;
+    const memberIds = this.listMember.map((member: any) => member.member);
+
+    // Đảm bảo giá trị đúng trước khi gửi
+    console.log('Tenant name to be sent:', tenantName);
+    
+    const body: createTenantModel = {
+      name: tenantName,
+      tenantTitle: tenantName,
+      description: description,
+      memberIds: memberIds,
       memberNames: this.listMemberName
     };
+
+    console.log('Request body being sent to API:', body);
+
     if (this.idTenant) {
       body['id'] = this.idTenant;
       body['owner'] = this.userInfor.sub;
       body['ownerName'] = this.userInfor.name;
-    }
-    if (this.idTenant) {
+      
+      // Gọi API cập nhật
       this.tenantService.updateTenant(body).subscribe({
         next: (data) => {
+          console.log('Response from updateTenant API:', data);
+          
+          // Kiểm tra xem tên đã được cập nhật trong response chưa
+          if (data.data && data.data.name !== tenantName) {
+            console.warn('API response contains old name! Expected:', tenantName, 'Got:', data.data.name);
+            
+            // Giải pháp tạm thời: Gán trực tiếp tên vào dữ liệu trả về từ API
+            data.data.name = tenantName;
+          }
+          
+          // Thực hiện làm mới dữ liệu
           this.tenantUpdated.emit(data.data);
           this.visiblePopUpCreateOrgnization.emit(false);
           this.message.success('Cập nhật thành công!');
+          
+          // Giải pháp thay thế: Làm mới dữ liệu tenant sau khi cập nhật
+          this._store.dispatch(loadTenant());
+          
+          // Kiểm tra lại dữ liệu sau khi cập nhật
+          setTimeout(() => {
+            this.tenantService.getDetailTenant(this.idTenant).subscribe(res => {
+              console.log('Verification - tenant detail after update:', res);
+              if (res && res.data && res.data.name !== tenantName) {
+                console.error('Verification failed: Tenant name not updated in database!');
+              }
+            });
+          }, 1000);
         },
-        error: () => {
+        error: (err) => {
+          console.error('Lỗi khi cập nhật tenant:', err);
           this.message.error('Cập nhật thất bại!');
-        },
-        complete: () => {
-          this.isConfirmLoading = false;
-        }
-      });
-    } else {
-      this.tenantService.createTenant(body).subscribe({
-        next: (data) => {
-          this.tenantCreated.emit(data.data); 
-          this.visiblePopUpCreateOrgnization.emit(false);
-          this.message.success('Tạo mới  thành công!');
-        },
-        error: () => {
-          this.message.error('Tạo mới thất bại!');
         },
         complete: () => {
           this.isConfirmLoading = false;

@@ -111,7 +111,7 @@ export class PopupAddMemberComponent implements OnInit{
   ngOnInit(): void {
     if (this.type === 'task') {
         this.modeSelect = 'default';
-    } else if (this.type === 'unit') {
+    } else if (this.type === 'unit' || this.type === 'tenant') {
         this.modeSelect = 'multiple';
     }
 
