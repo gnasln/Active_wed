@@ -7,15 +7,27 @@
         <input class="w-full px-3 py-1 h-[44px] rounded-xl border-[#ccc] border-solid border-[2px] outline-none" placeholder="Tìm kiếm"
         [(ngModel)]="searchQuery" (ngModelChange)="search($event)">
 
+        <!-- Hiển thị thông báo nếu không có thành viên -->
+        <div *ngIf="filteredListOfOption.length === 0" class="mt-4 text-center text-gray-500">
+            <p *ngIf="searching">Không tìm thấy thành viên phù hợp</p>
+            <p *ngIf="!searching">Không có thành viên nào trong đối tượng này</p>
+        </div>
+
+        <!-- Danh sách thành viên -->
         <div *ngFor="let option of filteredListOfOption" class="mt-3">
             <div class="flex justify-between items-center border-b-[1px] pb-2">
                 <div class="flex gap-2">
                     <input type="checkbox" (change)="onCheckboxChange(option.value, option.text, $event)"
                     [checked]="isMemberChecked(option.value)"
                     >
-                    <span>{{option.text}}</span>
+                    <span>{{option.text || 'Thành viên không có tên'}}</span>
                 </div>
             </div>
+        </div>
+
+        <!-- Debug info -->
+        <div *ngIf="listOfOption.length > 0 && filteredListOfOption.length === 0" class="mt-4 text-xs text-gray-400">
+            Có {{listOfOption.length}} thành viên, nhưng không có kết quả phù hợp với tìm kiếm.
         </div>
     </ng-template>
 

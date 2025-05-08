@@ -115,6 +115,7 @@ export class UnitListComponent implements OnInit, OnDestroy {
   }
 
   handleObjectCreated() {
+    console.log('UnitListComponent: Object created, refreshing list');
     this.listObjectByUnit();
   }
 
@@ -204,12 +205,28 @@ export class UnitListComponent implements OnInit, OnDestroy {
     });
   }
   ngOnDestroy(): void {
+    // Remove event listener
+    document.removeEventListener('refresh-object-list', this.handleRefreshEvent);
+    
+    // Unsubscribe from all subscriptions
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+    }
     this.GetListTodoBodyService.body.unitId = undefined;
     this.subscription.unsubscribe();
   }
 
   public UnitIdService: any;
   ngOnInit(): void {
+    // Add event listener for custom refresh event
+    document.addEventListener('refresh-object-list', this.handleRefreshEvent);
+    
+    // Subscribe to object list refresh from the service
+    this.refreshSubscription = this.valueUnitService.objectListRefresh$.subscribe(() => {
+      console.log('UnitListComponent: Received refresh signal from service');
+      this.listObjectByUnit();
+    });
+    
     if (this.router.url.includes('othertask') && this.UnitId) {
       this.GetListTodoBodyService.body.unitId = this.UnitId;
       this.GetListTodoBodyService.body.objectId = null;
@@ -860,4 +877,13 @@ export class UnitListComponent implements OnInit, OnDestroy {
       }, 500);
     }
   }
+
+  // Handle the custom refresh event
+  private handleRefreshEvent = (event: any) => {
+    console.log('UnitListComponent: Received refresh event', event.detail);
+    this.listObjectByUnit();
+  };
+  
+  // Track subscriptions
+  private refreshSubscription: Subscription;
 }

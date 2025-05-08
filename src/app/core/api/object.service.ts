@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +30,16 @@ export class ObjectService {
   }
 
   getMemberObject(id: string): Observable<any> {
-    return this.http.get(this.apiUrl + `/api/object/get-all-member/${id}`);
+    console.log('Getting members for object:', id);
+    return this.http.get(this.apiUrl + `/api/object/get-all-member/${id}`)
+      .pipe(
+        tap((response: any) => {
+          console.log('API response from getMemberObject:', response);
+          if (response?.data) {
+            console.log('Member data:', response.data);
+          }
+        })
+      );
   }
 
   deleteObject(id: string): Observable<any> {

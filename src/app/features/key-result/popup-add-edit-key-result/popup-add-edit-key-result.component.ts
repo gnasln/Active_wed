@@ -336,22 +336,71 @@ export class PopupAddEditKeyResultComponent implements OnInit, OnChanges{
   visiblePopUpAddMember: boolean = false;
   handleDataPopUpAddMember(e: any) {
     this.visiblePopUpAddMember = e.isVisible;
-    this.form.patchValue({
-      member: e.members.map((member: any) => ({
-        memberId: member.userId,
-        memberName: member.userName,
-      })),
-    });
-    this.listMemberName = e.membersName;
-    this.listMember = e.members.map((member: any) => ({
-      member,
-      img: '../../../../assets/img/avatar.png',
-    }));
+    console.log('Received data from popup-add-member:', e);
+    
+    // Lưu thông tin thành viên vào form và danh sách
+    if (e.members && e.members.length > 0) {
+      // Cập nhật listMember với định dạng đúng
+      this.listMember = e.members.map((member: any) => ({
+        member: member.memberId || member.userId, // Ưu tiên memberId (dành cho keyResult)
+        img: '../../../../assets/img/avatar.png',
+      }));
+      
+      // Cập nhật danh sách tên
+      this.listMemberName = e.membersName || [];
+      
+      // Cập nhật form
+      this.form.patchValue({
+        member: this.listMember
+      });
+      
+      console.log("Updated members:", this.listMember);
+      console.log("Updated member names:", this.listMemberName);
+    } else {
+      this.listMember = [];
+      this.listMemberName = [];
+      this.form.patchValue({
+        member: null
+      });
+    }
+    
     this.cdr.detectChanges();
   }
   handleOpenPopUpAddMember() {
+    console.log("Opening member popup for keyResult. Current objectId:", this.objectId);
+    
+    if (!this.objectId) {
+      console.error("No objectId provided for keyResult. Cannot fetch members.");
+      this.message.error("Không thể mở danh sách thành viên vì thiếu thông tin đối tượng.");
+      return;
+    }
+    
     this.visiblePopUpAddMember = true;
-    this.dataMember = this.form.get('member')?.value;
+    
+    // Format member data correctly for the popup
+    if (this.listMember && this.listMember.length > 0) {
+      // Map listMember to correct format for popup - sử dụng memberId thay vì userId
+      this.dataMember = this.listMember.map((member: any, index: number) => {
+        // Make sure we have a valid member ID
+        const memberId = typeof member.member === 'string' ? member.member : 
+                         (member.member?.memberId || member.member);
+        
+        // Get corresponding username or use index as fallback
+        const memberName = this.listMemberName[index] || `Member ${index + 1}`;
+        
+        console.log(`Formatted member ${index}:`, { memberId: memberId, memberName: memberName });
+        
+        return {
+          memberId: memberId,
+          memberName: memberName
+        };
+      });
+    } else {
+      this.dataMember = [];
+    }
+    
+    console.log("Data members for popup:", this.dataMember);
+    console.log("Object ID being passed to popup:", this.objectId);
   }
 
   handleEditUnit(e: any) {

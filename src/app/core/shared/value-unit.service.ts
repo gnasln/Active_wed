@@ -32,4 +32,23 @@ export class ValueUnitService {
   setTenantId(tenantId: string) {
     this.tenantIdSource = tenantId;
   }
+
+  // Method to get the current unitId value
+  getCurrentUnitId(): string {
+    let currentUnitId: string = '';
+    this.unitId$.subscribe(unitId => {
+      currentUnitId = unitId;
+    }).unsubscribe();
+    return currentUnitId;
+  }
+
+  // Track object list refresh
+  private objectListRefreshSource = new Subject<void>();
+  objectListRefresh$ = this.objectListRefreshSource.asObservable();
+
+  // Method to trigger a refresh of the object list
+  triggerObjectListRefresh(): void {
+    console.log('ValueUnitService: Triggering object list refresh');
+    this.objectListRefreshSource.next();
+  }
 }
