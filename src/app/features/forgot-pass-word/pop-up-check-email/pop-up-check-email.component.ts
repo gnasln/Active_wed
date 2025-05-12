@@ -52,15 +52,19 @@ export class PopUpCheckEmailComponent {
       email: this.form.get('email')?.value,
     }
     if (this.form.valid) {
+      this.isConfirmLoading = true;
       this.accountService.checkEmail(body).subscribe(res => {
-        this.message.success("Xác thực email thành công!")
+        this.message.success("Gửi mã OTP đến email thành công!")
         this.isVisiblePopUpOpen.emit({
           thisPopUp: false,
           nextPopUp: true,
+          email: this.form.get('email')?.value
         });
+        this.isConfirmLoading = false;
       }, 
       (err) =>{
-        this.message.error("Xác thực email không thành công!")
+        this.message.error("Gửi mã OTP đến email không thành công!")
+        this.isConfirmLoading = false;
       })
     } else {
       this.form.markAllAsTouched(); 

@@ -315,12 +315,29 @@ export class MainComponent implements OnInit, OnChanges {
   handleObjectCreated() {
     // Refresh the unit's object list if we're on the appropriate page
     if (this.router.url.includes('/unit/')) {
-      // Get the latest value from the unitId$ Observable
+      // Get the current unit ID
+      const currentUnitId = this.valueUnitService.getCurrentUnitId();
+      console.log('Refreshing object list for unit:', currentUnitId);
+      
+      // Find the UnitListComponent and trigger its refresh method directly
+      const unitListComponent = document.querySelector('app-unit-list');
+      if (unitListComponent) {
+        console.log('Found unit-list component, triggering refresh');
+        // Dispatch a custom event that unit-list component will listen for
+        const refreshEvent = new CustomEvent('refresh-object-list', {
+          bubbles: true,
+          detail: { unitId: currentUnitId }
+        });
+        unitListComponent.dispatchEvent(refreshEvent);
+      }
+      
+      // Also update through the service as a backup mechanism
       this.valueUnitService.unitId$.subscribe(unitId => {
         if (unitId) {
           this.valueUnitService.setUnitId(unitId);
+          this.valueUnitService.triggerObjectListRefresh();
         }
-      }).unsubscribe(); // Unsubscribe immediately after getting the value
+      }).unsubscribe();
     }
   }
 

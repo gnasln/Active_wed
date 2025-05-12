@@ -241,9 +241,11 @@ export class LoginComponent implements OnInit {
   }
 
   isVisibleCheckEmail = false;
+  emailForOTP: string = '';
   handleShowCheckEmail(e: any) {
     this.isVisibleCheckEmail = e.thisPopUp;
     this.isVisibleInsertOTP = e.nextPopUp;
+    this.emailForOTP = e.email;
     this.cdr.detectChanges();
   }
 

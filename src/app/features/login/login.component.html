@@ -76,6 +76,7 @@
 (isVisiblePopUpOpen)="handleShowCheckPhone($event)"></app-pop-up-check-phone>
 
 <app-pop-up-insert-otp *ngIf="isVisibleInsertOTP" [isVisiblePopUpInsertOTP]="isVisibleInsertOTP"
+    [email]="emailForOTP"
     (isVisiblePopUpOpen)="handleShowInsertOTPPopUp($event)"></app-pop-up-insert-otp>
 <app-pop-up-change-pass *ngIf="isVisibleChangePass" [isVisiblePopUpChangePass]="isVisibleChangePass"
     (isVisiblePopUpOpen)="handleShowChangePassPopUp($event)"></app-pop-up-change-pass>

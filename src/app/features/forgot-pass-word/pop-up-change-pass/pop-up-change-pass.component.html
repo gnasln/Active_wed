@@ -28,6 +28,9 @@
                             class="text-red-600">
                             {{'PopUpRegister.noEmty'|translate}}
                         </mat-error>
+                        <mat-error *ngIf="form.get('password')?.errors?.['passWordCheck']" class="text-red-600">
+                            {{'PopUpRegister.requiredPassword'|translate}}
+                        </mat-error>
                     </mat-form-field>
                 </div>
 

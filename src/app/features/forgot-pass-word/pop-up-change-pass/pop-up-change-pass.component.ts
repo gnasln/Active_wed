@@ -22,6 +22,9 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSelectModule, NzSelectSizeType } from 'ng-zorro-antd/select';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
+import { AccountService } from '../../../core/api/account.service';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { passWordValidator } from '../../../shared/validate/check-password.directive';
 import { rePassValidator } from '../../../shared/validate/check-repass.directive';
 
 @Component({
@@ -48,37 +51,50 @@ export class PopUpChangePassComponent {
   @Input() isVisiblePopUpChangePass: boolean = false;
   @Output() isVisiblePopUpOpen = new EventEmitter<any>();
 
-  handleOk(): void {
-    console.log('Button ok clicked!');
-    if (this.form.invalid) {
-      this.form.get('password')?.markAsTouched();
-      this.form.get('rePass')?.markAsTouched();
+  constructor(
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
+    private accountService: AccountService,
+    private message: NzMessageService,
+  ) {}
 
+  public form: FormGroup = this.fb.group({
+    password: [null, [Validators.required, passWordValidator()]],
+    rePass: [null, Validators.required],
+  });
+
+  handleOk(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
-    this.isVisiblePopUpOpen.emit(false);
+    const body = {
+      password: this.form.get('password')?.value,
+      repassword: this.form.get('rePass')?.value,
+    }
+    this.accountService.changePassword(body).subscribe(res => {
+      this.message.success("Đổi mật khẩu thành công!")
+      this.isVisiblePopUpOpen.emit(false);
+    }, (err) => {
+      this.message.error("Đổi mật khẩu không thành công!")
+    })
   }
+
   size: NzSelectSizeType = 'default';
   handleCancel(): void {
     this.isVisiblePopUpOpen.emit(false);
   }
-  public form: FormGroup = this.fb.group({
-    password: [null, Validators.required],
-    rePass: [null, Validators.required],
-  });
+
   ngOnInit(): void {
     this.form
       .get('rePass')
       ?.addValidators(rePassValidator(this.form.get('password')?.value));
   }
-  constructor(
-    private fb: FormBuilder,
-    private cdr: ChangeDetectorRef,
-  ) {}
 
   updateValidateRepass(e: any) {
     this.form.get('rePass')?.clearValidators();
     this.form.get('rePass')?.addValidators(rePassValidator(e.target.value));
+    this.form.get('rePass')?.updateValueAndValidity();
   }
 
   hidePass: boolean = true;

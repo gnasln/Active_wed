@@ -52,6 +52,7 @@ export class PopUpInsertOTPComponent {
   isConfirmLoading = false;
   @ViewChild('ngOtpInput') ngOtpInputRef:any;
   @Input() isVisiblePopUpInsertOTP: boolean = false;
+  @Input() email: string = '';
   @Output() isVisiblePopUpOpen = new EventEmitter<any>();
 
   otpConfig :NgOtpInputConfig = {
@@ -77,21 +78,26 @@ export class PopUpInsertOTPComponent {
   ) {}
 
   handleOk(): void {
+    this.isConfirmLoading = true;
     const body = {
-      Email: '',
+      email: this.email,
       otp: this.ngOtpInputRef.currentVal
     }
     if(this.ngOtpInputRef.currentVal === null || this.ngOtpInputRef.currentVal.length !== 6){
       this.message.error("Nhập đầy đủ mã OTP!")
+      this.isConfirmLoading = false;
       return;
     } else {
       this.accountService.checkOTP(body).subscribe(res => {
+        this.message.success("Xác thực OTP thành công!")
         this.isVisiblePopUpOpen.emit({
           thisPopUp: false,
           nextPopUp: true,
         })
+        this.isConfirmLoading = false;
       }, (err) => {
         this.message.error("Mã OTP không hợp lệ!")
+        this.isConfirmLoading = false;
       })
     }
   }
