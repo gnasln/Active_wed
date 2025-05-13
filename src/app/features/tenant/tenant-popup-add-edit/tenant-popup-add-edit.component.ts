@@ -245,6 +245,32 @@ export class TenantPopupAddEditComponent implements OnInit{
           this.isConfirmLoading = false;
         }
       });
+    } else {
+      // Thêm thông tin owner cho tenant mới
+      body['owner'] = this.userInfor.sub;
+      body['ownerName'] = this.userInfor.name;
+      
+      // Gọi API tạo mới tenant
+      this.tenantService.createTenant(body).subscribe({
+        next: (data) => {
+          console.log('Response from createTenant API:', data);
+          
+          // Thực hiện làm mới dữ liệu
+          this.tenantCreated.emit(data.data);
+          this.visiblePopUpCreateOrgnization.emit(false);
+          this.message.success('Thêm tổ chức thành công!');
+          
+          // Làm mới dữ liệu tenant sau khi tạo mới
+          this._store.dispatch(loadTenant());
+        },
+        error: (err) => {
+          console.error('Lỗi khi tạo tenant:', err);
+          this.message.error('Thêm tổ chức thất bại!');
+        },
+        complete: () => {
+          this.isConfirmLoading = false;
+        }
+      });
     }
   }
 
