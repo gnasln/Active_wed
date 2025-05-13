@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, EMPTY, map, Observable, of } from 'rxjs';
+import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { StorageService } from '../services/storage.service';
 import { OAuthService } from 'angular-oauth2-oidc';
@@ -34,10 +34,38 @@ export class unitService {
   }
 
   createUnit(body: createUnitModel): Observable<any> {
-    return this.http.post(this.apiUrl + '/api/unit/create', body);
+    console.log('UnitService - createUnit request body:', JSON.stringify(body));
+    return this.http.post(this.apiUrl + '/api/unit/create', body).pipe(
+      tap(
+        response => console.log('UnitService - createUnit success response:', response),
+        error => {
+          console.error('UnitService - createUnit error response:', error);
+          if (error.error && error.error.title) {
+            console.error('Error details:', error.error.title);
+          }
+          if (error.error && error.error.detail) {
+            console.error('Error detail:', error.error.detail);
+          }
+        }
+      )
+    );
   }
   updateUnit(body: any): Observable<any> {
-    return this.http.patch(this.apiUrl + '/api/unit/update', body);
+    console.log('UnitService - updateUnit request body:', JSON.stringify(body));
+    return this.http.patch(this.apiUrl + '/api/unit/update', body).pipe(
+      tap(
+        response => console.log('UnitService - updateUnit success response:', response),
+        error => {
+          console.error('UnitService - updateUnit error response:', error);
+          if (error.error && error.error.title) {
+            console.error('Error details:', error.error.title);
+          }
+          if (error.error && error.error.detail) {
+            console.error('Error detail:', error.error.detail);
+          }
+        }
+      )
+    );
   }
 
   deleteUnit(idUnit: string): Observable<any> {

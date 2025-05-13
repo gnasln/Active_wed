@@ -464,23 +464,86 @@ export class MainComponent implements OnInit, OnChanges {
   }
   
   handleUnitCreated(updatedUnit: any): void {
+    console.log('handleUnitCreated received unit:', updatedUnit);
+    
+    if (!updatedUnit) {
+      console.error('No unit data received in handleUnitCreated');
+      return;
+    }
+    
+    // Nếu unit đã tồn tại, cập nhật nó
     const unitIndex = this.units.findIndex((unit: any) => unit.id === updatedUnit.id);
     if (unitIndex !== -1) {
+      console.log('Updating existing unit at index:', unitIndex);
       this.units[unitIndex] = updatedUnit;
     } else {
+      // Nếu là unit mới, thêm vào danh sách
+      console.log('Adding new unit to list');
       this.units.push(updatedUnit);
     }
+    
+    // Làm mới danh sách units từ server nếu đang mở tenant
+    if (this.currentTenantId) {
+      console.log('Reloading units for tenant:', this.currentTenantId);
+      this.unitService.getListUnitsByTenant(this.currentTenantId).subscribe({
+        next: (units: any) => {
+          console.log('Refreshed unit list:', units);
+          if (units && units.data) {
+            this.units = units.data;
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Error reloading units:', err)
+      });
+    }
+    
+    // Đảm bảo UI được cập nhật
     this.cdr.detectChanges();
+    
+    // Đảm bảo store được cập nhật
+    this._store.dispatch(loadUnits());
   }
   
   handleUnitChilCreated(updatedUnit: any): void {
+    console.log('handleUnitChilCreated received unit:', updatedUnit);
+    
+    if (!updatedUnit) {
+      console.error('No unit data received in handleUnitChilCreated');
+      return;
+    }
+    
+    // Nếu unit con đã tồn tại, cập nhật nó
     const unitIndex = this.childrenUnits.findIndex((unitChil: any) => unitChil.id === updatedUnit.id);
     if (unitIndex !== -1) {
+      console.log('Updating existing child unit at index:', unitIndex);
       this.childrenUnits[unitIndex] = updatedUnit;
     } else {
+      // Nếu là unit con mới, thêm vào danh sách
+      console.log('Adding new child unit to list');
       this.childrenUnits.push(updatedUnit);
     }
+    
+    // Làm mới danh sách unit con từ server nếu đang có parent unit
+    if (updatedUnit.parentUnitId) {
+      console.log('Reloading child units for parent:', updatedUnit.parentUnitId);
+      this.unitService.getListUnitByParentUnit(updatedUnit.parentUnitId).subscribe({
+        next: (res: any) => {
+          console.log('Refreshed child unit list:', res);
+          if (res && res.data) {
+            this.childrenUnits = res.data;
+            this.valueUnitService.setChildrenUnits(res.data);
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Error reloading child units:', err)
+      });
+    }
+    
+    // Đảm bảo UI được cập nhật
     this.cdr.detectChanges();
+    
+    // Đảm bảo store được cập nhật
+    this._store.dispatch(loadUnits());
   }
 
   handleUnitDeleted(unitId: any): void {

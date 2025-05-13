@@ -139,6 +139,56 @@ export class UnitPopupAddEditComponent implements OnInit {
   }
 
   handleOk(): void {
+    // Kiểm tra form hợp lệ
+    if (this.form.invalid) {
+      console.log('Form validation failed:', this.form.errors);
+      
+      // Đánh dấu tất cả control là touched để hiển thị lỗi
+      Object.keys(this.form.controls).forEach(key => {
+        const control = this.form.get(key);
+        control?.markAsTouched();
+        control?.updateValueAndValidity();
+      });
+      
+      // Thông báo lỗi
+      this.message.error(this.translate.instant('Toast.checkRequiredFields'));
+      return;
+    }
+    
+    console.log('Creating unit with form values:', this.form.value);
+    console.log('Member list before processing:', this.listMember);
+    
+    // Đảm bảo có thành viên
+    if (!this.listMember || this.listMember.length === 0) {
+      console.error('No members selected');
+      this.message.error('Vui lòng thêm thành viên');
+      return;
+    }
+
+    this.isConfirmLoading = true;
+    
+    // Xử lý memberIds để đảm bảo là chuỗi GUID đơn giản, không phải object
+    let memberIds;
+    try {
+      memberIds = this.listMember.map((member: any) => {
+        // Kiểm tra nếu member.member là object
+        if (typeof member.member === 'object' && member.member !== null) {
+          // Lấy userId từ object
+          return member.member.userId || member.member.id || '';
+        }
+        // Nếu đã là string, trả về trực tiếp
+        return member.member;
+      });
+      
+      // Lọc ra các chuỗi không rỗng
+      memberIds = memberIds.filter((id: string) => id && id.trim() !== '');
+      
+      console.log('Processed memberIds:', memberIds);
+    } catch (error) {
+      console.error('Error processing memberIds:', error);
+      memberIds = [];
+    }
+    
     const body: createUnitModel = {
       name: this.form.get('unitTitle')?.value,
       description: this.form.get('description')?.value,
@@ -147,26 +197,52 @@ export class UnitPopupAddEditComponent implements OnInit {
       managerName: this.userInfor?.name,
       tenantId: this.idTenant,
       ...(this.idParentUnit && { parentUnitId: this.idParentUnit }),
-      memberIds: this.listMember.map((member: any) => member.member),
+      memberIds: memberIds,
       memberNames: this.listMemberName
     };
+    
     Object.keys(body).forEach((key) => {
-      if (body[key] === null || body[key] === '' || body[key] === 0) {
+      if (body[key] === null || body[key] === '' || body[key] === 0 || 
+         (Array.isArray(body[key]) && body[key].length === 0)) {
         delete body[key];
       }
     });
-    this.unitService.createUnit(body).subscribe((data) => {
-      // this.unitCreated.emit(data.data);
-      if (this.idParentUnit) {
-        this.unitChilCreated.emit(data.data); 
-        console.log("Vào Unit Chil")
-      } else {
-        this.unitCreated.emit(data.data);
-        console.log("Vào Unit cha")
+    
+    console.log('Sending unit creation request with body:', body);
+    
+    this.unitService.createUnit(body).subscribe({
+      next: (data) => {
+        console.log('Unit creation response:', data);
+        
+        if (!data || !data.data) {
+          console.error('Invalid response from server');
+          this.message.error('Lỗi khi tạo đơn vị: Phản hồi không hợp lệ từ máy chủ');
+          this.isConfirmLoading = false;
+          return;
+        }
+        
+        // Emit event based on whether this is a parent or child unit
+        if (this.idParentUnit) {
+          console.log("Creating child unit for parent:", this.idParentUnit);
+          this.unitChilCreated.emit(data.data);
+        } else {
+          console.log("Creating parent unit for tenant:", this.idTenant);
+          this.unitCreated.emit(data.data);
+        }
+        
+        this.visibleList.emit(false);
+        this.message.success('Tạo đơn vị thành công!');
+        this._store.dispatch(loadUnits());
+      },
+      error: (err) => {
+        console.error('Error creating unit:', err);
+        this.message.error('Lỗi khi tạo đơn vị: ' + (err.error?.message || err.message || 'Lỗi không xác định'));
+        this.isConfirmLoading = false;
+      },
+      complete: () => {
+        this.isConfirmLoading = false;
+        this.cdr.detectChanges();
       }
-      this.visibleList.emit(false);
-      this.message.success('Tạo đơn vị thành công!');
-      this.cdr.detectChanges();
     });
   }
   size: NzSelectSizeType = 'default';
@@ -245,6 +321,52 @@ export class UnitPopupAddEditComponent implements OnInit {
     });
   }
   handleEditUnit() {
+    // Kiểm tra form hợp lệ
+    if (this.form.invalid) {
+      console.log('Form validation failed:', this.form.errors);
+      
+      // Đánh dấu tất cả control là touched để hiển thị lỗi
+      Object.keys(this.form.controls).forEach(key => {
+        const control = this.form.get(key);
+        control?.markAsTouched();
+        control?.updateValueAndValidity();
+      });
+      
+      // Thông báo lỗi
+      this.message.error(this.translate.instant('Toast.checkRequiredFields'));
+      return;
+    }
+    
+    console.log('Updating unit with form values:', this.form.value);
+    
+    // Xử lý memberIds để đảm bảo là chuỗi GUID đơn giản, không phải object
+    let memberUnitIds;
+    try {
+      if (this.updatedMemberChecked.length > 0) {
+        memberUnitIds = this.updatedMemberChecked.map((member: any) => member.userId);
+      } else {
+        memberUnitIds = this.listMember.map((member: any) => {
+          // Kiểm tra nếu member.member là object
+          if (typeof member.member === 'object' && member.member !== null) {
+            // Lấy userId từ object
+            return member.member.userId || member.member.id || '';
+          }
+          // Nếu đã là string, trả về trực tiếp
+          return member.member;
+        });
+      }
+      
+      // Lọc ra các chuỗi không rỗng
+      memberUnitIds = memberUnitIds.filter((id: string) => id && id.trim() !== '');
+      
+      console.log('Processed memberUnitIds:', memberUnitIds);
+    } catch (error) {
+      console.error('Error processing memberUnitIds:', error);
+      memberUnitIds = [];
+    }
+
+    this.isConfirmLoading = true;
+    
     const body: any = {
       id: this.idUnit,
       name: this.form.get('unitTitle')?.value,
@@ -254,32 +376,63 @@ export class UnitPopupAddEditComponent implements OnInit {
       managerName: this.userInfor?.name,
       tenantId: this.idTenant,
       ...(this.idParentUnit && { parentUnitId: this.idParentUnit }),
-      memberUnitIds: this.updatedMemberChecked.length > 0 
-        ? this.updatedMemberChecked.map((member: any) => member.userId)
-        : this.listMember.map((member: any) => member.member), 
+      memberUnitIds: memberUnitIds,
       memberUnitNames: this.updatedMemberChecked.length > 0 
         ? this.updatedMemberChecked.map((member: any) => member.userName)
         : this.listMemberName 
     };
+    
     Object.keys(body).forEach((key) => {
-      if (body[key] === null || body[key] === '' || body[key] === 0) {
+      if (body[key] === null || body[key] === '' || body[key] === 0 || 
+         (Array.isArray(body[key]) && body[key].length === 0)) {
         delete body[key];
       }
     });
-    this.unitService.updateUnit(body).subscribe((data) => {
-      if (this.idParentUnit && this.idUnit) {
-        this.unitChilCreated.emit(data.data); 
-        console.log("Vào Unit Chil")
-      } else {
-        this.unitUpdated.emit(data.data);
-        console.log("Vào Unit cha")
+    
+    console.log('Sending unit update request with body:', JSON.stringify(body));
+    
+    this.unitService.updateUnit(body).subscribe({
+      next: (data) => {
+        console.log('Unit update response:', data);
+        
+        if (!data || !data.data) {
+          console.error('Invalid response from server');
+          this.message.error('Lỗi khi cập nhật đơn vị: Phản hồi không hợp lệ từ máy chủ');
+          this.isConfirmLoading = false;
+          return;
+        }
+        
+        // Emit event based on whether this is a parent or child unit
+        if (this.idParentUnit && this.idUnit) {
+          console.log("Updating child unit for parent:", this.idParentUnit);
+          this.unitChilCreated.emit(data.data);
+        } else {
+          console.log("Updating parent unit:", this.idUnit);
+          this.unitUpdated.emit(data.data);
+        }
+        
+        this.message.success(this.translate.instant('Toast.updateSuccess'));
+        
+        // Đảm bảo cập nhật state trong Redux store
+        this._store.dispatch(loadUnits());
+        
+        // Đóng popup
+        this.visibleList.emit(false);
+        
+        // Đảm bảo UI được cập nhật
+        setTimeout(() => {
+          this.cdr.detectChanges();
+        }, 100);
+      },
+      error: (err) => {
+        console.error('Error updating unit:', err);
+        this.message.error('Lỗi khi cập nhật đơn vị: ' + (err.error?.message || err.message || 'Lỗi không xác định'));
+        this.isConfirmLoading = false;
+      },
+      complete: () => {
+        this.isConfirmLoading = false;
       }
-      this.message.success(this.translate.instant('Toast.updateSuccess'));
-      this.visibleList.emit(false);
-      this.cdr.detectChanges();
-      // this._store.dispatch(loadUnits());
     });
-    this.visibleList.emit(false);
   }
 
   getDetailUnit() {
